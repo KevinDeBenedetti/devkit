@@ -7,7 +7,16 @@ help: ## Show helper
 	@echo ""
 	@echo "Available commands:"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-25s\033[0m %s\n", $$1, $$2}'
+		awk 'BEGIN {FS = ":"; prev=""} \
+		{ \
+			file = $$1; \
+			gsub(/^.*\//, "", file); \
+			if (file != prev && prev != "") print ""; \
+			prev = file; \
+			sub(/^[^:]*:/, ""); \
+			split($$0, arr, ":.*?## "); \
+			printf "  \033[36m%-25s\033[0m %s\n", arr[1], arr[2]; \
+		}'
 
 validate-env: ## Validate environment
 	@echo "Validating environment..."
