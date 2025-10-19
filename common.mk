@@ -26,6 +26,9 @@ validate-env: ## Validate environment
 	@which $(JS_PKG_MANAGER) > /dev/null || (echo "Error: $(JS_PKG_MANAGER) is not installed" && exit 1)
 	@echo "✓ Environment valid"
 
+dev: validate-env ## Start development server
+	@echo "Starting development server for project $(PROJECT_NAME) with stack $(STACK)"
+	
 build: validate-env ## Build the project
 	@echo "Building project $(PROJECT_NAME) with stack $(STACK)"
 

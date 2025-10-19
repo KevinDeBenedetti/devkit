@@ -12,6 +12,10 @@ check-nuxt-dir: ## Check that the Nuxt directory exists
 		echo "Warning: No package.json found in $(NUXT_DIR)"; \
 	fi
 
+dev-nuxt: check-nuxt-dir ## Start Nuxt development server
+	@echo "Starting Nuxt development server in $(NUXT_DIR) with $(JS_PKG_MANAGER)"
+	cd $(NUXT_DIR) && $(JS_PKG_MANAGER) install && $(JS_PKG_MANAGER) run dev
+
 build-nuxt: check-nuxt-dir ## Build Nuxt application
 	@echo "Building Nuxt in $(NUXT_DIR) with $(JS_PKG_MANAGER)"
 	cd $(NUXT_DIR) && $(JS_PKG_MANAGER) install && $(JS_PKG_MANAGER) run build
@@ -33,6 +37,7 @@ upgrade-nuxt: check-nuxt-dir ## Update Nuxt dependencies
 	cd $(NUXT_DIR) && $(JS_PKG_MANAGER) up --latest || $(JS_PKG_MANAGER) update
 
 # Override common targets for Nuxt
+dev: dev-nuxt
 build: build-nuxt
 lint: lint-nuxt
 clean: clean-nuxt
