@@ -1,5 +1,7 @@
 # make-library
 
+Make-library is a collection of reusable makefiles to initialize, configure, and automate projects (Nuxt, FastAPI, Python, etc.). It provides standard targets (init, build, test), configurable variables, and a sparse-checkout/submodule mechanism to include only the files needed by the project.
+
 ## Dependency manager configuration
 
 ### Initial Setup
@@ -54,25 +56,15 @@ INCLUDES := $(MK_DIR)/common.mk $(addprefix $(MK_DIR)/,$(MK_FILES))
 
 ```
 
-```bash
-git submodule add -b main https://github.com/kevindebenedetti/make-library.git mk
-```
-
 ---
 ### Nuxt
 
 Specific variables for Nuxt projects.
 
 ```makefile
-...
 # Nuxt-specific variables
 JS_PKG_MANAGER := npm
 NUXT_DIR := .
-
-ifeq ($(findstring nuxt,$(STACK)),nuxt)
-  INCLUDES += $(MKLIB_DIR)/nuxt.mk
-endif
-...
 ```
 
 #### JavaScript/TypeScript
