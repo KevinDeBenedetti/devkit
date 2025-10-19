@@ -26,9 +26,10 @@ include $(INCLUDES)
 ```
 
 ```bash
-git submodule add -b main https://github.com/<username>/make-library.git mk
+git submodule add -b main https://github.com/kevindebenedetti/make-library.git mk
 ```
 
+---
 ### Nuxt
 
 Specific variables for Nuxt projects.
