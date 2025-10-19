@@ -3,6 +3,12 @@
 # Default variables if not defined
 NUXT_DIR ?= .
 
+validate-nuxt: ## Validate Nuxt environment
+	@echo "Validating Nuxt environment..."
+	@echo "JS_PKG_MANAGER: $(JS_PKG_MANAGER)"
+	@which $(JS_PKG_MANAGER) > /dev/null || (echo "Error: $(JS_PKG_MANAGER) is not installed" && exit 1)
+	@echo "✓ Nuxt environment valid"
+
 check-nuxt-dir: ## Check that the Nuxt directory exists
 	@if [ ! -d "$(NUXT_DIR)" ]; then \
 		echo "Error: directory $(NUXT_DIR) does not exist"; \
@@ -37,6 +43,7 @@ upgrade-nuxt: check-nuxt-dir ## Update Nuxt dependencies
 	cd $(NUXT_DIR) && $(JS_PKG_MANAGER) up --latest || $(JS_PKG_MANAGER) update
 
 # Override common targets for Nuxt
+validate: validate-nuxt
 dev: dev-nuxt
 build: build-nuxt
 lint: lint-nuxt

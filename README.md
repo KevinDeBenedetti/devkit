@@ -2,7 +2,7 @@
 
 ## Dependency manager configuration
 
-### Add to a project
+### Initial Setup
 
 Create a `Makefile` in the root of your project and include the relevant makefiles based on your stack.
 
@@ -25,14 +25,24 @@ $(foreach file,$(INCLUDES),$(if $(wildcard $(file)),,$(error File $(file) does n
 include $(INCLUDES)
 ```
 
+```bash
+git submodule add -b main https://github.com/<username>/make-library.git mk
+```
+
 ### Nuxt
 
 Specific variables for Nuxt projects.
 
 ```makefile
+...
 # Nuxt-specific variables
 JS_PKG_MANAGER := npm
 NUXT_DIR := .
+
+ifeq ($(findstring nuxt,$(STACK)),nuxt)
+  INCLUDES += $(MKLIB_DIR)/nuxt.mk
+endif
+...
 ```
 
 #### JavaScript/TypeScript

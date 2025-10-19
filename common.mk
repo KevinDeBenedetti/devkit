@@ -18,25 +18,22 @@ help: ## Show helper
 			printf "  \033[36m%-25s\033[0m %s\n", arr[1], arr[2]; \
 		}'
 
-validate-env: ## Validate environment
+validate: ## Validate environment
 	@echo "Validating environment..."
 	@echo "PROJECT_NAME: $(PROJECT_NAME)"
 	@echo "STACK: $(STACK)"
-	@echo "JS_PKG_MANAGER: $(JS_PKG_MANAGER)"
-	@which $(JS_PKG_MANAGER) > /dev/null || (echo "Error: $(JS_PKG_MANAGER) is not installed" && exit 1)
-	@echo "✓ Environment valid"
 
-dev: validate-env ## Start development server
+dev: validate ## Start development server
 	@echo "Starting development server for project $(PROJECT_NAME) with stack $(STACK)"
-	
-build: validate-env ## Build the project
+
+build: validate ## Build the project
 	@echo "Building project $(PROJECT_NAME) with stack $(STACK)"
 
-test: ## Run tests
+test: validate ## Run tests
 	@echo "Running tests for $(PROJECT_NAME)"
 
-lint: ## Run linting
+lint: validate ## Run linting
 	@echo "Running linting for $(PROJECT_NAME)"
 
-clean: ## Clean artifacts
+clean: validate ## Clean artifacts
 	@echo "Cleaning artifacts for $(PROJECT_NAME)"
