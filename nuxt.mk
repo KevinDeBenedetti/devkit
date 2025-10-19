@@ -1,5 +1,3 @@
-.PHONY: build-nuxt lint-nuxt clean-nuxt upgrade-nuxt check-nuxt-dir
-
 # Default variables if not defined
 NUXT_DIR ?= .
 

@@ -1,9 +1,8 @@
-.PHONY: help build test lint clean validate-env
+.PHONY: help validate dev build test lint clean
 
 help: ## Show helper
 	@echo "Project: $(PROJECT_NAME)"
 	@echo "Stack: $(STACK)"
-	@echo "JS package manager: $(JS_PKG_MANAGER)"
 	@echo ""
 	@echo "Available commands:"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
