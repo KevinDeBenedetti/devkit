@@ -10,10 +10,11 @@ validate-vue: ## Validate Vue environment
 
 dev-vue: ## Start Vue development server
 	@echo "Starting Vue development server in $(VUE_DIR) with $(JS_PKG_MANAGER)"
-	cd $(VUE_DIR) && $(JS_PKG_MANAGER) install && $(JS_PKG_MANAGER) run dev
 	@if [ "$(DOCKER)" = "true" ]; then \
 		echo "Note: Make sure to access the dev server via the correct Docker network settings."; \
-		docker compose up -d
+		docker compose up -d; \
+	else \
+		cd $(VUE_DIR) && $(JS_PKG_MANAGER) install && $(JS_PKG_MANAGER) run dev; \
 	fi
 
 build-vue: ## Build Vue application
@@ -31,7 +32,7 @@ clean-vue: ## Clean Vue artifacts
 	cd $(VUE_DIR) && $(JS_PKG_MANAGER) store prune
 	@if [ "$(DOCKER)" = "true" ]; then \
 		echo "Note: Make sure to access the dev server via the correct Docker network settings."; \
-		docker compose down
+		docker compose down; \
 	fi
 upgrade-vue: ## Update Vue dependencies
 	@echo "Updating Vue dependencies..."
