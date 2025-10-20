@@ -13,13 +13,13 @@ dev-fastapi: ## Start FastAPI development server
 
 	@if [ "$(DOCKER)" = "true" ]; then \
 		echo "Note: Make sure to access the dev server via the correct Docker network settings."; \
-		docker compose up -d
-	else
-		@if [ -x "$(PY_PKG_MANAGER) uv" ]; then \
-			cd $(FASTAPI_DIR) && uv sync; \
+		docker compose up -d; \
+	else \
+		if [ -x "$(PY_PKG_MANAGER) uv" ]; then \
+			cd $(FASTAPI_DIR) && source .venv/bin/activate && uv sync; \
 		else \
 			echo "Warning: 'uv' is not installed. Falling back to standard run command."; \
-		fi
+		fi; \
 	fi
 
 build-fastapi: ## Build FastAPI application
@@ -36,7 +36,7 @@ lint-fastapi: ## Run FastAPI linting
 	@if [ -x "$(PY_PKG_MANAGER) uv" ]; then \
 		cd $(FASTAPI_DIR) && uv run ruff check --fix || echo "Lint command not available"; \
 		cd $(FASTAPI_DIR) && uv run ruff format; \
-	else
+	else \
 		echo "Warning: 'uv' is not installed. Skipping Python linting."; \
 	fi
 
@@ -49,7 +49,7 @@ clean-fastapi: ## Clean FastAPI artifacts
 
 	@if [ "$(DOCKER)" = "true" ]; then \
 		echo "Note: Make sure to access the dev server via the correct Docker network settings."; \
-		docker compose down
+		docker compose down; \
 	fi
 
 upgrade-fastapi: ## Update FastAPI dependencies
