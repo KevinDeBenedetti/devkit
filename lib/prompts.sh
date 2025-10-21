@@ -168,7 +168,12 @@ prompt_project_name() {
     echo -e "  Detected name: ${GREEN}$default_name${NC}" >&2
     echo "" >&2
     
+    # Force output to be displayed before reading input
     echo -en "${BOLD}Enter project name ${NC}[${GREEN}$default_name${NC}]: " >&2
-    read input_name </dev/tty
+    
+    # Read from terminal device with proper input handling
+    local input_name=""
+    IFS= read -r input_name </dev/tty
+    
     echo "${input_name:-$default_name}"
 }
