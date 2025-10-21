@@ -134,18 +134,18 @@ main() {
     
     # Generate configuration
     log_verbose "Generating configuration object..."
-    CONFIG=$(generate_config \
+    generate_config \
         "$PROJECT_NAME" \
         "$IS_MONOREPO" \
         "$STACK" \
         "$JS_PKG_MANAGER" \
         "$PY_PKG_MANAGER" \
-        "$USE_DOCKER")
+        "$USE_DOCKER"
     log_debug "Configuration generated"
     
     # Generate Makefile
     ui_step "Generating Makefile..."
-    if generate_makefile "$CONFIG"; then
+    if generate_makefile; then
         ui_success "Makefile generated"
     else
         ui_error "Failed to generate Makefile"
