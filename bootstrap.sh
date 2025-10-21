@@ -6,6 +6,7 @@ set -e
 # Parse command line arguments
 VERBOSE=false
 DEBUG=false
+BRANCH_ARG=""
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -19,12 +20,17 @@ while [[ $# -gt 0 ]]; do
             set -x
             shift
             ;;
+        -b|--branch)
+            BRANCH_ARG="$2"
+            shift 2
+            ;;
         -h|--help)
             echo "Usage: $0 [OPTIONS]"
             echo ""
             echo "Options:"
             echo "  -v, --verbose    Enable verbose output"
             echo "  -d, --debug      Enable debug mode (includes verbose)"
+            echo "  -b, --branch     Specify the GitHub branch (default: main)"
             echo "  -h, --help       Show this help message"
             exit 0
             ;;
@@ -42,8 +48,16 @@ export DEBUG
 
 # Configuration
 GITHUB_REPO="KevinDeBenedetti/devkit"
-GITHUB_BRANCH="main"
+GITHUB_BRANCH="${BRANCH_ARG:-main}"
 BASE_URL="https://raw.githubusercontent.com/${GITHUB_REPO}/${GITHUB_BRANCH}"
+
+# Export for use in generator
+export GITHUB_REPO
+export GITHUB_BRANCH
+
+echo "Using repository: ${GITHUB_REPO}"
+echo "Using branch: ${GITHUB_BRANCH}"
+echo ""
 
 # Determine if we're running locally or remotely
 # When running via curl | bash, BASH_SOURCE[0] is "bash" or "/bin/bash"
@@ -88,23 +102,19 @@ main() {
     log_verbose "All prerequisites satisfied"
     ui_section_separator
     
-    # Step 1: Project info
-    log_verbose "Starting project configuration..."
+    # Gather configuration
     PROJECT_NAME=$(prompt_project_name)
-    log_debug "Project name selected: $PROJECT_NAME"
+    log_debug "Project name: $PROJECT_NAME"
     ui_section_separator
     
-    # Step 2: Project structure
     IS_MONOREPO=$(prompt_project_structure)
-    log_debug "Monorepo selected: $IS_MONOREPO"
+    log_debug "Monorepo: $IS_MONOREPO"
     ui_section_separator
     
-    # Step 3: Stack selection
     STACK=$(prompt_stack_selection "$IS_MONOREPO")
-    log_debug "Stack selected: $STACK"
+    log_debug "Stack: $STACK"
     ui_section_separator
     
-    # Step 4: Package managers
     if has_frontend "$STACK"; then
         JS_PKG_MANAGER=$(prompt_js_package_manager)
         log_debug "JS package manager: $JS_PKG_MANAGER"
@@ -117,12 +127,11 @@ main() {
         ui_section_separator
     fi
     
-    # Step 5: Docker support
     USE_DOCKER=$(prompt_docker_support)
-    log_debug "Docker enabled: $USE_DOCKER"
+    log_debug "Docker: $USE_DOCKER"
     ui_section_separator
     
-    # Step 6: Summary and confirmation
+    # Confirmation
     ui_summary "$PROJECT_NAME" "$IS_MONOREPO" "$STACK" "$JS_PKG_MANAGER" "$PY_PKG_MANAGER" "$USE_DOCKER"
     
     if ! prompt_confirmation "Continue with this configuration?"; then
@@ -133,49 +142,24 @@ main() {
     echo ""
     
     # Generate configuration
-    log_verbose "Generating configuration object..."
-    generate_config \
-        "$PROJECT_NAME" \
-        "$IS_MONOREPO" \
-        "$STACK" \
-        "$JS_PKG_MANAGER" \
-        "$PY_PKG_MANAGER" \
-        "$USE_DOCKER"
-    log_debug "Configuration generated"
+    log_verbose "Generating configuration..."
+    generate_config "$PROJECT_NAME" "$IS_MONOREPO" "$STACK" "$JS_PKG_MANAGER" "$PY_PKG_MANAGER" "$USE_DOCKER"
     
-    # Generate Makefile
+    # Generate and install
     ui_step "Generating Makefile..."
-    if generate_makefile; then
-        ui_success "Makefile generated"
-    else
-        ui_error "Failed to generate Makefile"
-        exit 1
-    fi
+    generate_makefile && ui_success "Makefile generated" || { ui_error "Failed to generate Makefile"; exit 1; }
     echo ""
     
-    # Initialize make library
     ui_step "Initializing make library..."
-    if install_make_library; then
-        ui_success "Make library initialized"
-    else
-        ui_error "Failed to initialize make library"
-        exit 1
-    fi
+    install_make_library && ui_success "Make library initialized" || { ui_error "Failed to initialize make library"; exit 1; }
     echo ""
     
-    # Create directories if needed
     if [ "$IS_MONOREPO" = "true" ]; then
         ui_step "Creating monorepo structure..."
-        if create_monorepo_structure "$STACK"; then
-            ui_success "Directories created"
-        else
-            ui_error "Failed to create directories"
-            exit 1
-        fi
+        create_monorepo_structure "$STACK" && ui_success "Directories created" || { ui_error "Failed to create directories"; exit 1; }
         echo ""
     fi
     
-    # Success
     log_verbose "Setup completed successfully"
     ui_success_message "$STACK" "$USE_DOCKER"
 }

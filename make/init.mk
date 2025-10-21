@@ -7,6 +7,10 @@ MK_BRANCH ?= main
 MK_FILES := $(addsuffix .mk,$(STACK))
 SPARSE_CHECKOUT_FILES := common.mk init.mk $(MK_FILES)
 
+# Extract GitHub org and repo name from MK_REPO URL
+MK_GITHUB_PATH := $(shell echo $(MK_REPO) | sed 's/https:\/\/github.com\///' | sed 's/\.git//')
+MK_RAW_BASE_URL := https://raw.githubusercontent.com/$(MK_GITHUB_PATH)/$(MK_BRANCH)
+
 init: ## Initialize or update the make library
 	@echo "==> Checking git sparse-checkout configuration..."
 	@git sparse-checkout disable 2>/dev/null || true
@@ -42,20 +46,20 @@ init: ## Initialize or update the make library
 	fi
 
 dockerfiles: ## Download Dockerfiles from GitHub
-	@echo "==> Downloading Dockerfiles..."
+	@echo "==> Downloading Dockerfiles from branch $(MK_BRANCH)..."
 	@if [ -n "$(VUE_DOCKERFILE)" ]; then \
 		echo "  -> Downloading Vue Dockerfile to $(VUE_DIR)/Dockerfile"; \
 		mkdir -p $(VUE_DIR); \
-		curl -fsSL $(VUE_DOCKERFILE) -o $(VUE_DIR)/Dockerfile; \
+		curl -fsSL $(MK_RAW_BASE_URL)/$(VUE_DOCKERFILE) -o $(VUE_DIR)/Dockerfile; \
 	fi
 	@if [ -n "$(NUXT_DOCKERFILE)" ]; then \
 		echo "  -> Downloading Nuxt Dockerfile to $(NUXT_DIR)/Dockerfile"; \
 		mkdir -p $(NUXT_DIR); \
-		curl -fsSL $(NUXT_DOCKERFILE) -o $(NUXT_DIR)/Dockerfile; \
+		curl -fsSL $(MK_RAW_BASE_URL)/$(NUXT_DOCKERFILE) -o $(NUXT_DIR)/Dockerfile; \
 	fi
 	@if [ -n "$(FASTAPI_DOCKERFILE)" ]; then \
 		echo "  -> Downloading FastAPI Dockerfile to $(FASTAPI_DIR)/Dockerfile"; \
 		mkdir -p $(FASTAPI_DIR); \
-		curl -fsSL $(FASTAPI_DOCKERFILE) -o $(FASTAPI_DIR)/Dockerfile; \
+		curl -fsSL $(MK_RAW_BASE_URL)/$(FASTAPI_DOCKERFILE) -o $(FASTAPI_DIR)/Dockerfile; \
 	fi
 	@echo "==> Dockerfiles downloaded successfully"

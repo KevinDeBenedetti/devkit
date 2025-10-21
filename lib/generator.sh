@@ -9,20 +9,17 @@ generate_config() {
     local js_pkg=$4
     local py_pkg=$5
     local use_docker=$6
-    local custom_client_dir=$7
-    local custom_server_dir=$8
     
-    # Determine directories - use custom paths if provided, otherwise use defaults
-    local client_dir="${custom_client_dir:-.}"
-    local server_dir="${custom_server_dir:-.}"
+    # Determine directories
+    local client_dir="."
+    local server_dir="."
     
-    # If no custom paths but monorepo, use conventional structure
-    if [ "$is_monorepo" = "true" ] && [ -z "$custom_client_dir" ] && [ -z "$custom_server_dir" ]; then
+    if [ "$is_monorepo" = "true" ]; then
         client_dir="./apps/client"
         server_dir="./apps/server"
     fi
     
-    # Export as environment variables for other functions
+    # Export configuration
     export CONFIG_PROJECT_NAME="$project_name"
     export CONFIG_IS_MONOREPO="$is_monorepo"
     export CONFIG_STACK="$stack"
@@ -35,132 +32,93 @@ generate_config() {
 
 # Generate Makefile
 generate_makefile() {
-    log_verbose "Generating Makefile with configuration:"
+    log_verbose "Generating Makefile:"
     log_verbose "  Project: $CONFIG_PROJECT_NAME"
     log_verbose "  Stack: $CONFIG_STACK"
     log_verbose "  Monorepo: $CONFIG_IS_MONOREPO"
+    log_verbose "  Repo: ${GITHUB_REPO}"
+    log_verbose "  Branch: ${GITHUB_BRANCH}"
     
     cat > Makefile << EOF
 # Auto-generated Makefile by DevKit
 # Project: $CONFIG_PROJECT_NAME
-# Generated on: $(date)
+# Generated: $(date)
 # Structure: $([ "$CONFIG_IS_MONOREPO" = "true" ] && echo "Monorepo" || echo "Single app")
 
-# Project configuration
 PROJECT_NAME := $CONFIG_PROJECT_NAME
 STACK := $CONFIG_STACK
 
 # Make library configuration
 MK_DIR := mk
-MK_REPO := https://github.com/KevinDeBenedetti/devkit.git
-MK_BRANCH := main
+MK_REPO := https://github.com/${GITHUB_REPO}.git
+MK_BRANCH := ${GITHUB_BRANCH}
 
 EOF
 
-    # Add stack-specific configuration
-    add_vue_config
-    add_nuxt_config
-    add_fastapi_config
-    add_husky_config
+    # Add stack-specific configurations
+    add_stack_configs
     
-    # Add Docker configuration
     cat >> Makefile << EOF
 # Docker configuration
 DOCKER ?= $CONFIG_USE_DOCKER
 
-EOF
-    
-    # Add includes and init rule
-    cat >> Makefile << 'EOF'
 # Include make library files
-INCLUDES := $(MK_DIR)/common.mk $(MK_DIR)/init.mk $(addprefix $(MK_DIR)/,$(addsuffix .mk,$(STACK)))
+INCLUDES := \$(MK_DIR)/common.mk \$(MK_DIR)/init.mk \$(addprefix \$(MK_DIR)/,\$(addsuffix .mk,\$(STACK)))
 
-# Bootstrap init rule (will be replaced by init.mk after first run)
+# Bootstrap init rule (replaced by init.mk after first run)
 .PHONY: init
 init: ## Initialize or update the make library
-	@echo "==> Checking git sparse-checkout configuration..."
+	@echo "==> Initializing make library..."
 	@git sparse-checkout disable 2>/dev/null || true
-	@if [ ! -d $(MK_DIR) ]; then \
-		echo "==> Cloning make-library with sparse checkout..."; \
-		git clone --no-checkout --depth 1 --branch $(MK_BRANCH) --filter=blob:none $(MK_REPO) $(MK_DIR); \
-		cd $(MK_DIR) && \
-		git sparse-checkout init --no-cone && \
-		echo "make/common.mk" > .git/info/sparse-checkout && \
-		echo "make/init.mk" >> .git/info/sparse-checkout && \
-		for file in $(STACK); do echo "make/$${file}.mk" >> .git/info/sparse-checkout; done && \
-		git checkout $(MK_BRANCH) && \
-		cd make && \
-		cp *.mk ../. && \
-		cd .. && \
-		rm -rf .git make docker lib tests bootstrap.sh README.md; \
-		echo "==> Make library initialized successfully"; \
-	else \
-		echo "==> Updating make-library..."; \
-		rm -rf $(MK_DIR); \
-		git clone --no-checkout --depth 1 --branch $(MK_BRANCH) --filter=blob:none $(MK_REPO) $(MK_DIR); \
-		cd $(MK_DIR) && \
-		git sparse-checkout init --no-cone && \
-		echo "make/common.mk" > .git/info/sparse-checkout && \
-		echo "make/init.mk" >> .git/info/sparse-checkout && \
-		for file in $(STACK); do echo "make/$${file}.mk" >> .git/info/sparse-checkout; done && \
-		git checkout $(MK_BRANCH) && \
-		cd make && \
-		cp *.mk ../. && \
-		cd .. && \
-		rm -rf .git make docker lib tests bootstrap.sh README.md; \
-		echo "==> Make library updated successfully"; \
+	@if [ ! -d \$(MK_DIR) ]; then \\
+		git clone --no-checkout --depth 1 --branch \$(MK_BRANCH) --filter=blob:none \$(MK_REPO) \$(MK_DIR) && \\
+		cd \$(MK_DIR) && \\
+		git sparse-checkout init --no-cone && \\
+		echo "make/common.mk" > .git/info/sparse-checkout && \\
+		echo "make/init.mk" >> .git/info/sparse-checkout && \\
+		for file in \$(STACK); do echo "make/\$\${file}.mk" >> .git/info/sparse-checkout; done && \\
+		git checkout \$(MK_BRANCH) && \\
+		cd make && cp *.mk ../. && cd .. && \\
+		rm -rf .git make docker lib tests bootstrap.sh README.md && \\
+		echo "==> Make library initialized"; \\
+	else \\
+		echo "==> Updating make library..." && \\
+		rm -rf \$(MK_DIR) && make init; \\
 	fi
 
--include $(INCLUDES)
+-include \$(INCLUDES)
 EOF
 }
 
-# Add Vue configuration
-add_vue_config() {
-    if [[ "$CONFIG_STACK" == *"vue"* ]]; then
-        cat >> Makefile << EOF
-# VUE
+# Add all stack-specific configurations
+add_stack_configs() {
+    [[ "$CONFIG_STACK" == *"vue"* ]] && cat >> Makefile << EOF
+# Vue configuration
 VUE_DIR := $CONFIG_CLIENT_DIR
 JS_PKG_MANAGER := $CONFIG_JS_PKG
-VUE_DOCKERFILE := https://raw.githubusercontent.com/KevinDeBenedetti/devkit/main/docker/vue/Dockerfile
+VUE_DOCKERFILE := docker/vue/Dockerfile
 
 EOF
-    fi
-}
 
-# Add Nuxt configuration
-add_nuxt_config() {
-    if [[ "$CONFIG_STACK" == *"nuxt"* ]]; then
-        cat >> Makefile << EOF
-# NUXT
+    [[ "$CONFIG_STACK" == *"nuxt"* ]] && cat >> Makefile << EOF
+# Nuxt configuration
 NUXT_DIR := $CONFIG_CLIENT_DIR
 JS_PKG_MANAGER := $CONFIG_JS_PKG
-NUXT_DOCKERFILE := https://raw.githubusercontent.com/KevinDeBenedetti/devkit/main/docker/nuxt/Dockerfile
+NUXT_DOCKERFILE := docker/nuxt/Dockerfile
 
 EOF
-    fi
-}
 
-# Add FastAPI configuration
-add_fastapi_config() {
-    if [[ "$CONFIG_STACK" == *"fastapi"* ]]; then
-        cat >> Makefile << EOF
-# FASTAPI
+    [[ "$CONFIG_STACK" == *"fastapi"* ]] && cat >> Makefile << EOF
+# FastAPI configuration
 FASTAPI_DIR := $CONFIG_SERVER_DIR
 PY_PKG_MANAGER := $CONFIG_PY_PKG
-FASTAPI_DOCKERFILE := https://raw.githubusercontent.com/KevinDeBenedetti/devkit/main/docker/fastapi/Dockerfile
+FASTAPI_DOCKERFILE := docker/fastapi/Dockerfile
 
 EOF
-    fi
-}
 
-# Add Husky configuration
-add_husky_config() {
-    if [[ "$CONFIG_STACK" == *"husky"* ]]; then
-        cat >> Makefile << EOF
-# HUSKY
+    [[ "$CONFIG_STACK" == *"husky"* ]] && cat >> Makefile << EOF
+# Husky configuration
 HUSKY_DIR := $CONFIG_CLIENT_DIR
 
 EOF
-    fi
 }
