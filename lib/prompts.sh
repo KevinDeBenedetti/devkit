@@ -34,12 +34,12 @@ select_option() {
             fi
         done
         
-        # Read key
-        read -rsn1 key
+        # Read key from terminal device
+        read -rsn1 key </dev/tty
         
         case "$key" in
             $'\x1b')  # ESC sequence
-                read -rsn2 key
+                read -rsn2 key </dev/tty
                 case "$key" in
                     '[A')  # Up arrow
                         selected=$((selected - 1))
@@ -110,12 +110,12 @@ multi_select() {
             fi
         done
         
-        # Read key
-        read -rsn1 key
+        # Read key from terminal device
+        read -rsn1 key </dev/tty
         
         case "$key" in
             $'\x1b')  # ESC sequence
-                read -rsn2 key
+                read -rsn2 key </dev/tty
                 case "$key" in
                     '[A')  # Up arrow
                         selected=$((selected - 1))
@@ -171,193 +171,4 @@ prompt_project_name() {
     echo -en "${BOLD}Enter project name ${NC}[${GREEN}$default_name${NC}]: " >&2
     read input_name </dev/tty
     echo "${input_name:-$default_name}"
-}
-
-# Prompt for project structure
-prompt_project_structure() {
-    ui_section_title "🏗️  Project Structure" >&2
-    
-    local options=(
-        "Monorepo (apps/client + apps/server)"
-        "Single app (all in root directory)"
-    )
-    
-    select_option "Select project structure:" "${options[@]}" >&2
-    local choice=$?
-    
-    case $choice in
-        0)
-            ui_success "Monorepo structure selected" >&2
-            echo "true"
-            ;;
-        1)
-            ui_success "Single app structure selected" >&2
-            echo "false"
-            ;;
-    esac
-}
-
-# Prompt for stack selection
-prompt_stack_selection() {
-    local is_monorepo=$1
-    ui_section_title "📚 Technology Stack" >&2
-    
-    # Frontend
-    echo -e "${BOLD}Frontend Framework${NC}" >&2
-    echo "" >&2
-    
-    local frontend_options=(
-        "Vue.js"
-        "Nuxt.js"
-        "None"
-    )
-    
-    select_option "Select frontend framework:" "${frontend_options[@]}" >&2
-    local frontend_choice=$?
-    
-    local frontend=""
-    case $frontend_choice in
-        0) frontend="vue"; ui_success "Vue.js selected" >&2 ;;
-        1) frontend="nuxt"; ui_success "Nuxt.js selected" >&2 ;;
-        2) ui_success "No frontend framework" >&2 ;;
-    esac
-    echo "" >&2
-    
-    # Backend
-    echo -e "${BOLD}Backend Framework${NC}" >&2
-    echo "" >&2
-    
-    local backend_options=(
-        "FastAPI"
-        "None"
-    )
-    
-    select_option "Select backend framework:" "${backend_options[@]}" >&2
-    local backend_choice=$?
-    
-    local backend=""
-    case $backend_choice in
-        0) backend="fastapi"; ui_success "FastAPI selected" >&2 ;;
-        1) ui_success "No backend framework" >&2 ;;
-    esac
-    echo "" >&2
-    
-    # Git hooks
-    echo -e "${BOLD}Git Hooks${NC}" >&2
-    echo "" >&2
-    
-    local husky_options=(
-        "Enable Husky"
-        "Skip Husky"
-    )
-    
-    select_option "Configure git hooks:" "${husky_options[@]}" >&2
-    local husky_choice=$?
-    
-    local husky=""
-    if [ $husky_choice -eq 0 ]; then
-        husky="husky"
-        ui_success "Husky enabled" >&2
-    else
-        ui_success "Husky disabled" >&2
-    fi
-    
-    # Build stack string
-    local stack=()
-    [ -n "$frontend" ] && stack+=("$frontend")
-    [ -n "$backend" ] && stack+=("$backend")
-    [ -n "$husky" ] && stack+=("$husky")
-    
-    if [ ${#stack[@]} -eq 0 ]; then
-        ui_error "No stack selected!" >&2
-        exit 1
-    fi
-    
-    echo "${stack[*]}"
-}
-
-# Prompt for JS package manager
-prompt_js_package_manager() {
-    ui_section_title "📦 JavaScript Package Manager" >&2
-    
-    local options=(
-        "pnpm (recommended)"
-        "npm"
-        "yarn"
-        "bun"
-    )
-    
-    select_option "Select JavaScript package manager:" "${options[@]}" >&2
-    local choice=$?
-    
-    local manager="pnpm"
-    case $choice in
-        0) manager="pnpm" ;;
-        1) manager="npm" ;;
-        2) manager="yarn" ;;
-        3) manager="bun" ;;
-    esac
-    
-    ui_success "Using $manager" >&2
-    echo "$manager"
-}
-
-# Prompt for Python package manager
-prompt_python_package_manager() {
-    ui_section_title "🐍 Python Package Manager" >&2
-    
-    local options=(
-        "uv (recommended)"
-        "poetry"
-        "pip"
-    )
-    
-    select_option "Select Python package manager:" "${options[@]}" >&2
-    local choice=$?
-    
-    local manager="uv"
-    case $choice in
-        0) manager="uv" ;;
-        1) manager="poetry" ;;
-        2) manager="pip" ;;
-    esac
-    
-    ui_success "Using $manager" >&2
-    echo "$manager"
-}
-
-# Prompt for Docker support
-prompt_docker_support() {
-    ui_section_title "🐳 Docker Support" >&2
-    
-    local options=(
-        "Enable Docker support"
-        "Skip Docker"
-    )
-    
-    select_option "Configure Docker:" "${options[@]}" >&2
-    local choice=$?
-    
-    if [ $choice -eq 0 ]; then
-        ui_success "Docker enabled" >&2
-        echo "true"
-    else
-        ui_success "Docker disabled" >&2
-        echo "false"
-    fi
-}
-
-# Prompt for confirmation
-prompt_confirmation() {
-    local message=$1
-    
-    local options=(
-        "Yes, continue"
-        "No, cancel"
-    )
-    
-    select_option "$message" "${options[@]}" >&2
-    local choice=$?
-    
-    [ $choice -eq 0 ]
 }
