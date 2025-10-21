@@ -41,8 +41,31 @@ export VERBOSE
 export DEBUG
 
 # Configuration
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LIB_DIR="${SCRIPT_DIR}/lib"
+GITHUB_REPO="KevinDeBenedetti/devkit"
+GITHUB_BRANCH="main"
+BASE_URL="https://raw.githubusercontent.com/${GITHUB_REPO}/${GITHUB_BRANCH}"
+
+# Determine if we're running locally or remotely
+if [ -f "${BASH_SOURCE[0]}" ]; then
+    # Running locally
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    LIB_DIR="${SCRIPT_DIR}/lib"
+else
+    # Running via curl | bash
+    TEMP_DIR=$(mktemp -d)
+    trap "rm -rf $TEMP_DIR" EXIT
+    LIB_DIR="${TEMP_DIR}/lib"
+    mkdir -p "${LIB_DIR}"
+    
+    # Download all library files
+    echo "Downloading required files..."
+    for file in ui.sh validator.sh prompts.sh generator.sh installer.sh; do
+        if ! curl -fsSL "${BASE_URL}/lib/${file}" -o "${LIB_DIR}/${file}"; then
+            echo "Error: Failed to download lib/${file}"
+            exit 1
+        fi
+    done
+fi
 
 # Source utility modules
 source "${LIB_DIR}/ui.sh"
