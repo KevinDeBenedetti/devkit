@@ -46,12 +46,9 @@ GITHUB_BRANCH="main"
 BASE_URL="https://raw.githubusercontent.com/${GITHUB_REPO}/${GITHUB_BRANCH}"
 
 # Determine if we're running locally or remotely
-if [ -f "${BASH_SOURCE[0]}" ]; then
-    # Running locally
-    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    LIB_DIR="${SCRIPT_DIR}/lib"
-else
-    # Running via curl | bash
+# When running via curl | bash, BASH_SOURCE[0] is "bash" or "/bin/bash"
+if [[ "${BASH_SOURCE[0]}" == "bash" ]] || [[ "${BASH_SOURCE[0]}" == *"/bash" ]] || [[ ! -d "$(dirname "${BASH_SOURCE[0]}")/lib" ]]; then
+    # Running via curl | bash or lib directory doesn't exist
     TEMP_DIR=$(mktemp -d)
     trap "rm -rf $TEMP_DIR" EXIT
     LIB_DIR="${TEMP_DIR}/lib"
@@ -65,6 +62,10 @@ else
             exit 1
         fi
     done
+else
+    # Running locally
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    LIB_DIR="${SCRIPT_DIR}/lib"
 fi
 
 # Source utility modules
