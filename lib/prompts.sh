@@ -12,7 +12,7 @@ prompt_project_name() {
     echo -e "  Detected name: ${GREEN}$default_name${NC}"
     echo ""
     
-    read -p "$(echo -e ${BOLD}Enter project name ${NC}[${GREEN}$default_name${NC}]: )" input_name
+    read -p "$(echo -e ${BOLD}Enter project name ${NC}[${GREEN}$default_name${NC}]: )" input_name </dev/tty
     echo "${input_name:-$default_name}"
 }
 
@@ -24,7 +24,7 @@ prompt_project_structure() {
     echo "  2) Single app (all in root directory)"
     echo ""
     
-    read -p "$(echo -e ${BOLD}Select structure ${NC}[1-2]: )" choice
+    read -p "$(echo -e ${BOLD}Select structure ${NC}[1-2]: )" choice </dev/tty
     
     case $choice in
         1)
@@ -57,7 +57,7 @@ prompt_stack_selection() {
     echo "  3) None"
     echo ""
     
-    read -p "$(echo -e ${BOLD}Select frontend ${NC}[1-3]: )" frontend_choice
+    read -p "$(echo -e ${BOLD}Select frontend ${NC}[1-3]: )" frontend_choice </dev/tty
     
     local frontend=""
     case $frontend_choice in
@@ -74,7 +74,7 @@ prompt_stack_selection() {
     echo "  2) None"
     echo ""
     
-    read -p "$(echo -e ${BOLD}Select backend ${NC}[1-2]: )" backend_choice
+    read -p "$(echo -e ${BOLD}Select backend ${NC}[1-2]: )" backend_choice </dev/tty
     
     local backend=""
     case $backend_choice in
@@ -86,7 +86,7 @@ prompt_stack_selection() {
     
     # Git hooks
     echo -e "${BOLD}Git Hooks:${NC}"
-    read -p "$(echo -e ${BOLD}Use Husky for git hooks? ${NC}[y/N]: )" use_husky
+    read -p "$(echo -e ${BOLD}Use Husky for git hooks? ${NC}[y/N]: )" use_husky </dev/tty
     
     local husky=""
     if [[ $use_husky =~ ^[Yy]$ ]]; then
@@ -120,7 +120,7 @@ prompt_js_package_manager() {
     echo "  4) bun"
     echo ""
     
-    read -p "$(echo -e ${BOLD}Select JS package manager ${NC}[1-4]: )" choice
+    read -p "$(echo -e ${BOLD}Select JS package manager ${NC}[1-4]: )" choice </dev/tty
     
     local manager="pnpm"
     case $choice in
@@ -144,7 +144,7 @@ prompt_python_package_manager() {
     echo "  3) pip"
     echo ""
     
-    read -p "$(echo -e ${BOLD}Select Python package manager ${NC}[1-3]: )" choice
+    read -p "$(echo -e ${BOLD}Select Python package manager ${NC}[1-3]: )" choice </dev/tty
     
     local manager="uv"
     case $choice in
@@ -162,7 +162,7 @@ prompt_python_package_manager() {
 prompt_docker_support() {
     ui_section_title "🐳 Docker Support"
     
-    read -p "$(echo -e ${BOLD}Enable Docker support? ${NC}[Y/n]: )" use_docker
+    read -p "$(echo -e ${BOLD}Enable Docker support? ${NC}[Y/n]: )" use_docker </dev/tty
     use_docker=${use_docker:-y}
     
     if [[ $use_docker =~ ^[Yy]$ ]]; then
@@ -177,7 +177,7 @@ prompt_docker_support() {
 # Prompt for confirmation
 prompt_confirmation() {
     local message=$1
-    read -p "$(echo -e ${BOLD}$message ${NC}[Y/n]: )" confirm
+    read -p "$(echo -e ${BOLD}$message ${NC}[Y/n]: )" confirm </dev/tty
     confirm=${confirm:-y}
     [[ $confirm =~ ^[Yy]$ ]]
 }
