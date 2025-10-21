@@ -2,6 +2,13 @@
 set -e
 
 # Main bootstrap script - orchestrates the setup wizard
+#
+# Usage:
+#   Local:  ./bootstrap.sh [OPTIONS]
+#   Remote: curl -fsSL <URL> | bash -s -- [OPTIONS]
+#
+# Example with remote:
+#   curl -fsSL https://raw.githubusercontent.com/user/repo/branch/bootstrap.sh | bash -s -- --debug --branch dev
 
 # Parse command line arguments
 VERBOSE=false
@@ -32,6 +39,12 @@ while [[ $# -gt 0 ]]; do
             echo "  -d, --debug      Enable debug mode (includes verbose)"
             echo "  -b, --branch     Specify the GitHub branch (default: main)"
             echo "  -h, --help       Show this help message"
+            echo ""
+            echo "Remote usage:"
+            echo "  curl -fsSL <URL> | bash -s -- [OPTIONS]"
+            echo ""
+            echo "Example:"
+            echo "  curl -fsSL https://raw.githubusercontent.com/user/repo/branch/bootstrap.sh | bash -s -- --debug --branch dev"
             exit 0
             ;;
         *)
@@ -71,23 +84,62 @@ if [[ "${BASH_SOURCE[0]}" == "bash" ]] || [[ "${BASH_SOURCE[0]}" == *"/bash" ]] 
     # Download all library files
     echo "Downloading required files..."
     for file in ui.sh validator.sh prompts.sh generator.sh installer.sh; do
-        if ! curl -fsSL "${BASE_URL}/lib/${file}" -o "${LIB_DIR}/${file}"; then
-            echo "Error: Failed to download lib/${file}"
+        local_file="${LIB_DIR}/${file}"
+        remote_url="${BASE_URL}/lib/${file}"
+        
+        if ! curl -fsSL "$remote_url" -o "$local_file"; then
+            echo "Error: Failed to download lib/${file} from ${remote_url}"
             exit 1
+        fi
+        
+        # Validate downloaded file
+        if [[ ! -s "$local_file" ]]; then
+            echo "Error: Downloaded file lib/${file} is empty"
+            exit 1
+        fi
+        
+        # Check for syntax errors before sourcing (only in debug mode)
+        if [[ "$DEBUG" == "true" ]]; then
+            echo "Validating syntax of ${file}..."
+            if ! bash -n "$local_file" 2>&1; then
+                echo "Error: Syntax error detected in lib/${file}"
+                echo "Content preview (first 20 lines):"
+                head -20 "$local_file"
+                exit 1
+            fi
         fi
     done
 else
     # Running locally
     SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
     LIB_DIR="${SCRIPT_DIR}/lib"
+    
+    # Validate local files exist
+    for file in ui.sh validator.sh prompts.sh generator.sh installer.sh; do
+        if [[ ! -f "${LIB_DIR}/${file}" ]]; then
+            echo "Error: Required file lib/${file} not found"
+            exit 1
+        fi
+    done
 fi
 
-# Source utility modules
-source "${LIB_DIR}/ui.sh"
-source "${LIB_DIR}/validator.sh"
-source "${LIB_DIR}/prompts.sh"
-source "${LIB_DIR}/generator.sh"
-source "${LIB_DIR}/installer.sh"
+# Source utility modules with error handling
+for module in ui.sh validator.sh prompts.sh generator.sh installer.sh; do
+    module_path="${LIB_DIR}/${module}"
+    if [[ "$DEBUG" == "true" ]]; then
+        echo "Sourcing ${module}..."
+    fi
+    
+    if ! source "$module_path"; then
+        echo "Error: Failed to source ${module}"
+        echo "File location: ${module_path}"
+        if [[ -f "$module_path" ]]; then
+            echo "File exists. Content preview (first 50 lines):"
+            head -50 "$module_path"
+        fi
+        exit 1
+    fi
+done
 
 # Main setup flow
 main() {
