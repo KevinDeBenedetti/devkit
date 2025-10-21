@@ -70,10 +70,46 @@ DOCKER ?= $CONFIG_USE_DOCKER
 
 EOF
     
-    # Add includes
+    # Add includes and init rule
     cat >> Makefile << 'EOF'
 # Include make library files
 INCLUDES := $(MK_DIR)/common.mk $(MK_DIR)/init.mk $(addprefix $(MK_DIR)/,$(addsuffix .mk,$(STACK)))
+
+# Bootstrap init rule (will be replaced by init.mk after first run)
+.PHONY: init
+init: ## Initialize or update the make library
+	@echo "==> Checking git sparse-checkout configuration..."
+	@git sparse-checkout disable 2>/dev/null || true
+	@if [ ! -d $(MK_DIR) ]; then \
+		echo "==> Cloning make-library with sparse checkout..."; \
+		git clone --no-checkout --depth 1 --branch $(MK_BRANCH) --filter=blob:none $(MK_REPO) $(MK_DIR); \
+		cd $(MK_DIR) && \
+		git sparse-checkout init --no-cone && \
+		echo "make/common.mk" > .git/info/sparse-checkout && \
+		echo "make/init.mk" >> .git/info/sparse-checkout && \
+		for file in $(STACK); do echo "make/$${file}.mk" >> .git/info/sparse-checkout; done && \
+		git checkout $(MK_BRANCH) && \
+		cd make && \
+		cp *.mk ../. && \
+		cd .. && \
+		rm -rf .git make docker lib tests bootstrap.sh README.md; \
+		echo "==> Make library initialized successfully"; \
+	else \
+		echo "==> Updating make-library..."; \
+		rm -rf $(MK_DIR); \
+		git clone --no-checkout --depth 1 --branch $(MK_BRANCH) --filter=blob:none $(MK_REPO) $(MK_DIR); \
+		cd $(MK_DIR) && \
+		git sparse-checkout init --no-cone && \
+		echo "make/common.mk" > .git/info/sparse-checkout && \
+		echo "make/init.mk" >> .git/info/sparse-checkout && \
+		for file in $(STACK); do echo "make/$${file}.mk" >> .git/info/sparse-checkout; done && \
+		git checkout $(MK_BRANCH) && \
+		cd make && \
+		cp *.mk ../. && \
+		cd .. && \
+		rm -rf .git make docker lib tests bootstrap.sh README.md; \
+		echo "==> Make library updated successfully"; \
+	fi
 
 -include $(INCLUDES)
 EOF

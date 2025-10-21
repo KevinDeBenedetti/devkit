@@ -15,24 +15,30 @@ init: ## Initialize or update the make library
 		git clone --no-checkout --depth 1 --branch $(MK_BRANCH) --filter=blob:none $(MK_REPO) $(MK_DIR); \
 		cd $(MK_DIR) && \
 		git sparse-checkout init --no-cone && \
-		echo "common.mk" > .git/info/sparse-checkout && \
-		echo "init.mk" >> .git/info/sparse-checkout && \
-		$(foreach file,$(MK_FILES),echo "$(file)" >> .git/info/sparse-checkout &&) true && \
+		echo "make/common.mk" > .git/info/sparse-checkout && \
+		echo "make/init.mk" >> .git/info/sparse-checkout && \
+		$(foreach file,$(MK_FILES),echo "make/$(file)" >> .git/info/sparse-checkout &&) true && \
 		git checkout $(MK_BRANCH) && \
-		rm -rf .git; \
-		echo "==> Files added to repository tracking"; \
+		cd make && \
+		cp *.mk ../. && \
+		cd .. && \
+		rm -rf .git make docker lib tests bootstrap.sh README.md; \
+		echo "==> Make library initialized successfully"; \
 	else \
 		echo "==> Updating make-library..."; \
 		rm -rf $(MK_DIR); \
 		git clone --no-checkout --depth 1 --branch $(MK_BRANCH) --filter=blob:none $(MK_REPO) $(MK_DIR); \
 		cd $(MK_DIR) && \
 		git sparse-checkout init --no-cone && \
-		echo "common.mk" > .git/info/sparse-checkout && \
-		echo "init.mk" >> .git/info/sparse-checkout && \
-		$(foreach file,$(MK_FILES),echo "$(file)" >> .git/info/sparse-checkout &&) true && \
+		echo "make/common.mk" > .git/info/sparse-checkout && \
+		echo "make/init.mk" >> .git/info/sparse-checkout && \
+		$(foreach file,$(MK_FILES),echo "make/$(file)" >> .git/info/sparse-checkout &&) true && \
 		git checkout $(MK_BRANCH) && \
-		rm -rf .git; \
-		echo "==> Files updated and added to repository tracking"; \
+		cd make && \
+		cp *.mk ../. && \
+		cd .. && \
+		rm -rf .git make docker lib tests bootstrap.sh README.md; \
+		echo "==> Make library updated successfully"; \
 	fi
 
 dockerfiles: ## Download Dockerfiles from GitHub
