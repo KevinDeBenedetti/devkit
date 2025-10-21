@@ -141,6 +141,21 @@ for module in ui.sh validator.sh prompts.sh generator.sh installer.sh; do
     fi
 done
 
+# Fallback for prompt_project_structure if not defined
+if ! declare -F prompt_project_structure >/dev/null; then
+    prompt_project_structure() {
+        ui_section_title "📦 Project Structure (fallback)"
+        while true; do
+            read -rp "Is this a monorepo? (y/N): " answer
+            case "${answer,,}" in
+                y|yes) echo "true"; return ;;
+                ""|n|no) echo "false"; return ;;
+                *) echo "Please answer y or n." ;;
+            esac
+        done
+    }
+fi
+
 # Main setup flow
 main() {
     ui_header "DevKit Setup Wizard"
