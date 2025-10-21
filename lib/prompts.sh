@@ -42,13 +42,13 @@ select_option() {
                 read -rsn2 key
                 case "$key" in
                     '[A')  # Up arrow
-                        ((selected--))
+                        selected=$((selected - 1))
                         if [ $selected -lt 0 ]; then
                             selected=$((${#options[@]}-1))
                         fi
                         ;;
                     '[B')  # Down arrow
-                        ((selected++))
+                        selected=$((selected + 1))
                         if [ $selected -ge ${#options[@]} ]; then
                             selected=0
                         fi
@@ -118,13 +118,13 @@ multi_select() {
                 read -rsn2 key
                 case "$key" in
                     '[A')  # Up arrow
-                        ((selected--))
+                        selected=$((selected - 1))
                         if [ $selected -lt 0 ]; then
                             selected=$((${#options[@]}-1))
                         fi
                         ;;
                     '[B')  # Down arrow
-                        ((selected++))
+                        selected=$((selected + 1))
                         if [ $selected -ge ${#options[@]} ]; then
                             selected=0
                         fi
