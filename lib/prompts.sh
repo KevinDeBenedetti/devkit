@@ -177,3 +177,144 @@ prompt_project_name() {
     
     echo "${input_name:-$default_name}"
 }
+
+# Prompt for project structure
+prompt_project_structure() {
+    echo "" >&2
+    select_option "Select project structure:" \
+        "Monorepo (apps/client + apps/server)" \
+        "Single app (all in root directory)" >&2
+    
+    local choice=$?
+    echo "" >&2
+    
+    if [ $choice -eq 0 ]; then
+        echo -e "  ${GREEN}✓${NC} Monorepo structure selected" >&2
+        echo "true"
+    else
+        echo -e "  ${GREEN}✓${NC} Single app structure selected" >&2
+        echo "false"
+    fi
+}
+
+# Prompt for stack selection
+prompt_stack_selection() {
+    local is_monorepo=$1
+    local stack=""
+    
+    # Frontend selection
+    echo "" >&2
+    select_option "Select frontend framework:" \
+        "Vue.js" \
+        "Nuxt.js" \
+        "None" >&2
+    
+    local frontend_choice=$?
+    
+    case $frontend_choice in
+        0) stack="vue" ;;
+        1) stack="nuxt" ;;
+        2) stack="" ;;
+    esac
+    
+    # Backend selection
+    echo "" >&2
+    select_option "Select backend framework:" \
+        "FastAPI" \
+        "None" >&2
+    
+    local backend_choice=$?
+    
+    if [ $backend_choice -eq 0 ]; then
+        stack="$stack fastapi"
+    fi
+    
+    # Husky selection
+    echo "" >&2
+    select_option "Configure git hooks:" \
+        "Enable Husky" \
+        "Skip Husky" >&2
+    
+    local husky_choice=$?
+    
+    if [ $husky_choice -eq 0 ]; then
+        stack="$stack husky"
+    fi
+    
+    echo "${stack## }"
+}
+
+# Prompt for JavaScript package manager
+prompt_js_package_manager() {
+    echo "" >&2
+    select_option "Select JavaScript package manager:" \
+        "pnpm (recommended)" \
+        "npm" \
+        "yarn" \
+        "bun" >&2
+    
+    local choice=$?
+    echo "" >&2
+    
+    case $choice in
+        0) echo -e "  ${GREEN}✓${NC} Using pnpm" >&2; echo "pnpm" ;;
+        1) echo -e "  ${GREEN}✓${NC} Using npm" >&2; echo "npm" ;;
+        2) echo -e "  ${GREEN}✓${NC} Using yarn" >&2; echo "yarn" ;;
+        3) echo -e "  ${GREEN}✓${NC} Using bun" >&2; echo "bun" ;;
+    esac
+}
+
+# Prompt for Python package manager
+prompt_python_package_manager() {
+    echo "" >&2
+    select_option "Select Python package manager:" \
+        "uv (recommended)" \
+        "poetry" \
+        "pip" >&2
+    
+    local choice=$?
+    echo "" >&2
+    
+    case $choice in
+        0) echo -e "  ${GREEN}✓${NC} Using uv" >&2; echo "uv" ;;
+        1) echo -e "  ${GREEN}✓${NC} Using poetry" >&2; echo "poetry" ;;
+        2) echo -e "  ${GREEN}✓${NC} Using pip" >&2; echo "pip" ;;
+    esac
+}
+
+# Prompt for Docker support
+prompt_docker_support() {
+    echo "" >&2
+    select_option "Configure Docker:" \
+        "Enable Docker support" \
+        "Skip Docker" >&2
+    
+    local choice=$?
+    echo "" >&2
+    
+    if [ $choice -eq 0 ]; then
+        echo -e "  ${GREEN}✓${NC} Docker enabled" >&2
+        echo "true"
+    else
+        echo -e "  ${GREEN}✓${NC} Docker skipped" >&2
+        echo "false"
+    fi
+}
+
+# Prompt for confirmation
+prompt_confirmation() {
+    local message="$1"
+    
+    echo "" >&2
+    select_option "$message" \
+        "Yes, continue" \
+        "No, cancel" >&2
+    
+    local choice=$?
+    
+    if [ $choice -eq 0 ]; then
+        return 0
+    else
+        return 1
+    fi
+}
