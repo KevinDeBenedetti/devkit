@@ -1,5 +1,6 @@
 #!/bin/bash
 # User prompts - all interactive questions with modern UI
+# Uses gum if available, falls back to native bash implementation
 
 # Interactive menu with arrow keys
 # Usage: select_option "Title" "option1" "option2" "option3"
@@ -159,41 +160,72 @@ multi_select() {
 
 # Prompt for project name
 prompt_project_name() {
-    ui_section_title "📁 Project Information" >&2
-    
-    local project_dir=$(pwd)
-    local default_name=$(basename "$project_dir")
-    
-    echo -e "  Current directory: ${GREEN}$project_dir${NC}" >&2
-    echo -e "  Detected name: ${GREEN}$default_name${NC}" >&2
-    echo "" >&2
-    
-    # Force output to be displayed before reading input
-    echo -en "${BOLD}Enter project name ${NC}[${GREEN}$default_name${NC}]: " >&2
-    
-    # Read from terminal device with proper input handling
-    local input_name=""
-    IFS= read -r input_name </dev/tty
-    
-    echo "${input_name:-$default_name}"
+    if [ "$USE_GUM" = true ]; then
+        gum_section_title "📁 Project Information" >&2
+        
+        local project_dir=$(pwd)
+        local default_name=$(basename "$project_dir")
+        
+        gum_info "Current directory: $project_dir" >&2
+        gum_info "Detected name: $default_name" >&2
+        echo "" >&2
+        
+        local input_name=$(gum_input "Enter project name" "$default_name" "$default_name")
+        echo "${input_name:-$default_name}"
+    else
+        ui_section_title "📁 Project Information" >&2
+        
+        local project_dir=$(pwd)
+        local default_name=$(basename "$project_dir")
+        
+        echo -e "  Current directory: ${GREEN}$project_dir${NC}" >&2
+        echo -e "  Detected name: ${GREEN}$default_name${NC}" >&2
+        echo "" >&2
+        
+        # Force output to be displayed before reading input
+        echo -en "${BOLD}Enter project name ${NC}[${GREEN}$default_name${NC}]: " >&2
+        
+        # Read from terminal device with proper input handling
+        local input_name=""
+        IFS= read -r input_name </dev/tty
+        
+        echo "${input_name:-$default_name}"
+    fi
 }
 
 # Prompt for project structure
 prompt_project_structure() {
-    echo "" >&2
-    select_option "Select project structure:" \
-        "Monorepo (apps/client + apps/server)" \
-        "Single app (all in root directory)" >&2
-    
-    local choice=$?
-    echo "" >&2
-    
-    if [ $choice -eq 0 ]; then
-        echo -e "  ${GREEN}✓${NC} Monorepo structure selected" >&2
-        echo "true"
+    if [ "$USE_GUM" = true ]; then
+        echo "" >&2
+        local selected=$(gum_select "Select project structure:" \
+            "Monorepo (apps/client + apps/server)" \
+            "Single app (all in root directory)")
+        
+        echo "" >&2
+        
+        if [[ "$selected" == "Monorepo"* ]]; then
+            gum_success "Monorepo structure selected" >&2
+            echo "true"
+        else
+            gum_success "Single app structure selected" >&2
+            echo "false"
+        fi
     else
-        echo -e "  ${GREEN}✓${NC} Single app structure selected" >&2
-        echo "false"
+        echo "" >&2
+        select_option "Select project structure:" \
+            "Monorepo (apps/client + apps/server)" \
+            "Single app (all in root directory)" >&2
+        
+        local choice=$?
+        echo "" >&2
+        
+        if [ $choice -eq 0 ]; then
+            echo -e "  ${GREEN}✓${NC} Monorepo structure selected" >&2
+            echo "true"
+        else
+            echo -e "  ${GREEN}✓${NC} Single app structure selected" >&2
+            echo "false"
+        fi
     fi
 }
 
@@ -202,43 +234,71 @@ prompt_stack_selection() {
     local is_monorepo=$1
     local stack=""
     
-    # Frontend selection
-    echo "" >&2
-    select_option "Select frontend framework:" \
-        "Vue.js" \
-        "Nuxt.js" \
-        "None" >&2
-    
-    local frontend_choice=$?
-    
-    case $frontend_choice in
-        0) stack="vue" ;;
-        1) stack="nuxt" ;;
-        2) stack="" ;;
-    esac
-    
-    # Backend selection
-    echo "" >&2
-    select_option "Select backend framework:" \
-        "FastAPI" \
-        "None" >&2
-    
-    local backend_choice=$?
-    
-    if [ $backend_choice -eq 0 ]; then
-        stack="$stack fastapi"
-    fi
-    
-    # Husky selection
-    echo "" >&2
-    select_option "Configure git hooks:" \
-        "Enable Husky" \
-        "Skip Husky" >&2
-    
-    local husky_choice=$?
-    
-    if [ $husky_choice -eq 0 ]; then
-        stack="$stack husky"
+    if [ "$USE_GUM" = true ]; then
+        # Frontend selection
+        echo "" >&2
+        local frontend=$(gum_select "Select frontend framework:" "Vue.js" "Nuxt.js" "None")
+        
+        case "$frontend" in
+            "Vue.js") stack="vue" ;;
+            "Nuxt.js") stack="nuxt" ;;
+            "None") stack="" ;;
+        esac
+        
+        # Backend selection
+        echo "" >&2
+        local backend=$(gum_select "Select backend framework:" "FastAPI" "None")
+        
+        if [ "$backend" = "FastAPI" ]; then
+            stack="$stack fastapi"
+        fi
+        
+        # Husky selection
+        echo "" >&2
+        local husky=$(gum_select "Configure git hooks:" "Enable Husky" "Skip Husky")
+        
+        if [ "$husky" = "Enable Husky" ]; then
+            stack="$stack husky"
+        fi
+    else
+        # Frontend selection
+        echo "" >&2
+        select_option "Select frontend framework:" \
+            "Vue.js" \
+            "Nuxt.js" \
+            "None" >&2
+        
+        local frontend_choice=$?
+        
+        case $frontend_choice in
+            0) stack="vue" ;;
+            1) stack="nuxt" ;;
+            2) stack="" ;;
+        esac
+        
+        # Backend selection
+        echo "" >&2
+        select_option "Select backend framework:" \
+            "FastAPI" \
+            "None" >&2
+        
+        local backend_choice=$?
+        
+        if [ $backend_choice -eq 0 ]; then
+            stack="$stack fastapi"
+        fi
+        
+        # Husky selection
+        echo "" >&2
+        select_option "Configure git hooks:" \
+            "Enable Husky" \
+            "Skip Husky" >&2
+        
+        local husky_choice=$?
+        
+        if [ $husky_choice -eq 0 ]; then
+            stack="$stack husky"
+        fi
     fi
     
     echo "${stack## }"
@@ -246,58 +306,109 @@ prompt_stack_selection() {
 
 # Prompt for JavaScript package manager
 prompt_js_package_manager() {
-    echo "" >&2
-    select_option "Select JavaScript package manager:" \
-        "pnpm (recommended)" \
-        "npm" \
-        "yarn" \
-        "bun" >&2
-    
-    local choice=$?
-    echo "" >&2
-    
-    case $choice in
-        0) echo -e "  ${GREEN}✓${NC} Using pnpm" >&2; echo "pnpm" ;;
-        1) echo -e "  ${GREEN}✓${NC} Using npm" >&2; echo "npm" ;;
-        2) echo -e "  ${GREEN}✓${NC} Using yarn" >&2; echo "yarn" ;;
-        3) echo -e "  ${GREEN}✓${NC} Using bun" >&2; echo "bun" ;;
-    esac
+    if [ "$USE_GUM" = true ]; then
+        echo "" >&2
+        local selected=$(gum_select "Select JavaScript package manager:" \
+            "pnpm (recommended)" \
+            "npm" \
+            "yarn" \
+            "bun")
+        
+        echo "" >&2
+        
+        case "$selected" in
+            "pnpm"*) gum_success "Using pnpm" >&2; echo "pnpm" ;;
+            "npm") gum_success "Using npm" >&2; echo "npm" ;;
+            "yarn") gum_success "Using yarn" >&2; echo "yarn" ;;
+            "bun") gum_success "Using bun" >&2; echo "bun" ;;
+        esac
+    else
+        echo "" >&2
+        select_option "Select JavaScript package manager:" \
+            "pnpm (recommended)" \
+            "npm" \
+            "yarn" \
+            "bun" >&2
+        
+        local choice=$?
+        echo "" >&2
+        
+        case $choice in
+            0) echo -e "  ${GREEN}✓${NC} Using pnpm" >&2; echo "pnpm" ;;
+            1) echo -e "  ${GREEN}✓${NC} Using npm" >&2; echo "npm" ;;
+            2) echo -e "  ${GREEN}✓${NC} Using yarn" >&2; echo "yarn" ;;
+            3) echo -e "  ${GREEN}✓${NC} Using bun" >&2; echo "bun" ;;
+        esac
+    fi
 }
 
 # Prompt for Python package manager
 prompt_python_package_manager() {
-    echo "" >&2
-    select_option "Select Python package manager:" \
-        "uv (recommended)" \
-        "poetry" \
-        "pip" >&2
-    
-    local choice=$?
-    echo "" >&2
-    
-    case $choice in
-        0) echo -e "  ${GREEN}✓${NC} Using uv" >&2; echo "uv" ;;
-        1) echo -e "  ${GREEN}✓${NC} Using poetry" >&2; echo "poetry" ;;
-        2) echo -e "  ${GREEN}✓${NC} Using pip" >&2; echo "pip" ;;
-    esac
+    if [ "$USE_GUM" = true ]; then
+        echo "" >&2
+        local selected=$(gum_select "Select Python package manager:" \
+            "uv (recommended)" \
+            "poetry" \
+            "pip")
+        
+        echo "" >&2
+        
+        case "$selected" in
+            "uv"*) gum_success "Using uv" >&2; echo "uv" ;;
+            "poetry") gum_success "Using poetry" >&2; echo "poetry" ;;
+            "pip") gum_success "Using pip" >&2; echo "pip" ;;
+        esac
+    else
+        echo "" >&2
+        select_option "Select Python package manager:" \
+            "uv (recommended)" \
+            "poetry" \
+            "pip" >&2
+        
+        local choice=$?
+        echo "" >&2
+        
+        case $choice in
+            0) echo -e "  ${GREEN}✓${NC} Using uv" >&2; echo "uv" ;;
+            1) echo -e "  ${GREEN}✓${NC} Using poetry" >&2; echo "poetry" ;;
+            2) echo -e "  ${GREEN}✓${NC} Using pip" >&2; echo "pip" ;;
+        esac
+    fi
 }
 
 # Prompt for Docker support
 prompt_docker_support() {
-    echo "" >&2
-    select_option "Configure Docker:" \
-        "Enable Docker support" \
-        "Skip Docker" >&2
-    
-    local choice=$?
-    echo "" >&2
-    
-    if [ $choice -eq 0 ]; then
-        echo -e "  ${GREEN}✓${NC} Docker enabled" >&2
-        echo "true"
+    if [ "$USE_GUM" = true ]; then
+        echo "" >&2
+        local selected=$(gum_select "Configure Docker:" \
+            "Enable Docker support" \
+            "Skip Docker")
+        
+        echo "" >&2
+        
+        if [[ "$selected" == "Enable"* ]]; then
+            gum_success "Docker enabled" >&2
+            echo "true"
+        else
+            gum_success "Docker skipped" >&2
+            echo "false"
+        fi
     else
-        echo -e "  ${GREEN}✓${NC} Docker skipped" >&2
-        echo "false"
+        echo "" >&2
+        select_option "Configure Docker:" \
+            "Enable Docker support" \
+            "Skip Docker" >&2
+        
+        local choice=$?
+        echo "" >&2
+        
+        if [ $choice -eq 0 ]; then
+            echo -e "  ${GREEN}✓${NC} Docker enabled" >&2
+            echo "true"
+        else
+            echo -e "  ${GREEN}✓${NC} Docker skipped" >&2
+            echo "false"
+        fi
     fi
 }
 
@@ -305,16 +416,25 @@ prompt_docker_support() {
 prompt_confirmation() {
     local message="$1"
     
-    echo "" >&2
-    select_option "$message" \
-        "Yes, continue" \
-        "No, cancel" >&2
-    
-    local choice=$?
-    
-    if [ $choice -eq 0 ]; then
-        return 0
+    if [ "$USE_GUM" = true ]; then
+        echo "" >&2
+        if gum_confirm "$message" "No"; then
+            return 0
+        else
+            return 1
+        fi
     else
-        return 1
+        echo "" >&2
+        select_option "$message" \
+            "Yes, continue" \
+            "No, cancel" >&2
+        
+        local choice=$?
+        
+        if [ $choice -eq 0 ]; then
+            return 0
+        else
+            return 1
+        fi
     fi
 }

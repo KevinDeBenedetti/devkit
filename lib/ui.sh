@@ -30,17 +30,22 @@ log_error() {
 
 # Header
 ui_header() {
-    clear
-    echo -e "${BOLD}${BLUE}"
-    echo "╔════════════════════════════════════════════════════════╗"
-    echo "║                                                        ║"
-    echo "║           🚀 $1 🚀              ║"
-    echo "║                                                        ║"
-    echo "║          Let's configure your project!                 ║"
-    echo "║                                                        ║"
-    echo "╚════════════════════════════════════════════════════════╝"
-    echo -e "${NC}"
-    echo ""
+    if [ "$USE_GUM" = true ]; then
+        clear
+        gum_header "$1"
+    else
+        clear
+        echo -e "${BOLD}${BLUE}"
+        echo "╔════════════════════════════════════════════════════════╗"
+        echo "║                                                        ║"
+        echo "║           🚀 $1 🚀              ║"
+        echo "║                                                        ║"
+        echo "║          Let's configure your project!                 ║"
+        echo "║                                                        ║"
+        echo "╚════════════════════════════════════════════════════════╝"
+        echo -e "${NC}"
+        echo ""
+    fi
 }
 
 # Section separator
@@ -50,35 +55,59 @@ ui_section_separator() {
 
 # Section title
 ui_section_title() {
-    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    echo -e "${BOLD}$1${NC}"
-    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    echo ""
+    if [ "$USE_GUM" = true ]; then
+        gum_section_title "$1"
+    else
+        echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo -e "${BOLD}$1${NC}"
+        echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo ""
+    fi
 }
 
 # Success message
 ui_success() {
-    echo -e "  ${GREEN}✓${NC} $1"
+    if [ "$USE_GUM" = true ]; then
+        gum_success "$1"
+    else
+        echo -e "  ${GREEN}✓${NC} $1"
+    fi
 }
 
 # Error message
 ui_error() {
-    echo -e "${RED}✗ $1${NC}"
+    if [ "$USE_GUM" = true ]; then
+        gum_error "$1"
+    else
+        echo -e "${RED}✗ $1${NC}"
+    fi
 }
 
 # Warning message
 ui_warning() {
-    echo -e "${YELLOW}⚠ $1${NC}"
+    if [ "$USE_GUM" = true ]; then
+        gum_warning "$1"
+    else
+        echo -e "${YELLOW}⚠ $1${NC}"
+    fi
 }
 
 # Info message
 ui_info() {
-    echo -e "  $1"
+    if [ "$USE_GUM" = true ]; then
+        gum_info "$1"
+    else
+        echo -e "  $1"
+    fi
 }
 
 # Step message
 ui_step() {
-    echo -e "${BLUE}==> $1${NC}"
+    if [ "$USE_GUM" = true ]; then
+        gum_step "$1"
+    else
+        echo -e "${BLUE}==> $1${NC}"
+    fi
 }
 
 # Summary display
@@ -90,18 +119,22 @@ ui_summary() {
     local py_pkg=$5
     local use_docker=$6
     
-    ui_section_title "📋 Configuration Summary"
-    
-    echo -e "  ${BOLD}Project:${NC} $project_name"
-    echo -e "  ${BOLD}Structure:${NC} $([ "$is_monorepo" = "true" ] && echo "Monorepo" || echo "Single app")"
-    echo -e "  ${BOLD}Stack:${NC} $stack"
-    [ -n "$js_pkg" ] && echo -e "  ${BOLD}JS Package Manager:${NC} $js_pkg"
-    [ -n "$py_pkg" ] && echo -e "  ${BOLD}Python Package Manager:${NC} $py_pkg"
-    echo -e "  ${BOLD}Docker:${NC} $use_docker"
-    
-    echo ""
-    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    echo ""
+    if [ "$USE_GUM" = true ]; then
+        gum_summary "$project_name" "$is_monorepo" "$stack" "$js_pkg" "$py_pkg" "$use_docker"
+    else
+        ui_section_title "📋 Configuration Summary"
+        
+        echo -e "  ${BOLD}Project:${NC} $project_name"
+        echo -e "  ${BOLD}Structure:${NC} $([ "$is_monorepo" = "true" ] && echo "Monorepo" || echo "Single app")"
+        echo -e "  ${BOLD}Stack:${NC} $stack"
+        [ -n "$js_pkg" ] && echo -e "  ${BOLD}JS Package Manager:${NC} $js_pkg"
+        [ -n "$py_pkg" ] && echo -e "  ${BOLD}Python Package Manager:${NC} $py_pkg"
+        echo -e "  ${BOLD}Docker:${NC} $use_docker"
+        
+        echo ""
+        echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo ""
+    fi
 }
 
 # Final success message
@@ -109,39 +142,43 @@ ui_success_message() {
     local stack=$1
     local use_docker=$2
     
-    echo -e "${GREEN}"
-    echo "╔════════════════════════════════════════════════════════╗"
-    echo "║                                                        ║"
-    echo "║              ✨ Setup Complete! ✨                    ║"
-    echo "║                                                        ║"
-    echo "╚════════════════════════════════════════════════════════╝"
-    echo -e "${NC}"
-    echo ""
-    echo -e "${BOLD}Next steps:${NC}"
-    echo ""
-    echo -e "  ${CYAN}1.${NC} View available commands:"
-    echo -e "     ${GREEN}make help${NC}"
-    echo ""
-    
-    if [ "$use_docker" = "true" ]; then
-        echo -e "  ${CYAN}2.${NC} Download Dockerfiles:"
-        echo -e "     ${GREEN}make dockerfiles${NC}"
+    if [ "$USE_GUM" = true ]; then
+        gum_success_message "$stack" "$use_docker"
+    else
+        echo -e "${GREEN}"
+        echo "╔════════════════════════════════════════════════════════╗"
+        echo "║                                                        ║"
+        echo "║              ✨ Setup Complete! ✨                    ║"
+        echo "║                                                        ║"
+        echo "╚════════════════════════════════════════════════════════╝"
+        echo -e "${NC}"
+        echo ""
+        echo -e "${BOLD}Next steps:${NC}"
+        echo ""
+        echo -e "  ${CYAN}1.${NC} View available commands:"
+        echo -e "     ${GREEN}make help${NC}"
+        echo ""
+        
+        if [ "$use_docker" = "true" ]; then
+            echo -e "  ${CYAN}2.${NC} Download Dockerfiles:"
+            echo -e "     ${GREEN}make dockerfiles${NC}"
+            echo ""
+        fi
+        
+        echo -e "  ${CYAN}3.${NC} Start developing:"
+        
+        if [[ "$stack" == *"vue"* ]] || [[ "$stack" == *"nuxt"* ]]; then
+            echo -e "     ${GREEN}make install-client${NC}  # Install frontend dependencies"
+            echo -e "     ${GREEN}make dev-client${NC}      # Start frontend dev server"
+        fi
+        
+        if [[ "$stack" == *"fastapi"* ]]; then
+            echo -e "     ${GREEN}make install-server${NC}  # Install backend dependencies"
+            echo -e "     ${GREEN}make dev-server${NC}      # Start backend dev server"
+        fi
+        
+        echo ""
+        echo -e "${BLUE}Happy coding! 🚀${NC}"
         echo ""
     fi
-    
-    echo -e "  ${CYAN}3.${NC} Start developing:"
-    
-    if [[ "$stack" == *"vue"* ]] || [[ "$stack" == *"nuxt"* ]]; then
-        echo -e "     ${GREEN}make install-client${NC}  # Install frontend dependencies"
-        echo -e "     ${GREEN}make dev-client${NC}      # Start frontend dev server"
-    fi
-    
-    if [[ "$stack" == *"fastapi"* ]]; then
-        echo -e "     ${GREEN}make install-server${NC}  # Install backend dependencies"
-        echo -e "     ${GREEN}make dev-server${NC}      # Start backend dev server"
-    fi
-    
-    echo ""
-    echo -e "${BLUE}Happy coding! 🚀${NC}"
-    echo ""
 }
