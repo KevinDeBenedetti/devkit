@@ -8,7 +8,7 @@ set -e
 #   Remote: curl -fsSL <URL> | bash -s -- [OPTIONS]
 #
 # Example with remote:
-#   curl -fsSL https://raw.githubusercontent.com/user/repo/branch/bootstrap.sh | bash -s -- --debug --branch dev
+#   curl -fsSL https://raw.githubusercontent.com/KevinDeBenedetti/devkit/dev/bootstrap.sh | bash -s -- --debug --branch dev 
 
 # Parse command line arguments
 VERBOSE=false
