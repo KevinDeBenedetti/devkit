@@ -83,7 +83,7 @@ if [[ "${BASH_SOURCE[0]}" == "bash" ]] || [[ "${BASH_SOURCE[0]}" == *"/bash" ]] 
     
     # Download all library files
     echo "Downloading required files..."
-    for file in ui.sh validator.sh prompts.sh generator.sh installer.sh; do
+    for file in ui.sh validator.sh gum.sh prompts.sh generator.sh installer.sh; do
         local_file="${LIB_DIR}/${file}"
         remote_url="${BASE_URL}/lib/${file}"
         
@@ -115,7 +115,7 @@ else
     LIB_DIR="${SCRIPT_DIR}/lib"
     
     # Validate local files exist
-    for file in ui.sh validator.sh prompts.sh generator.sh installer.sh; do
+    for file in ui.sh validator.sh gum.sh prompts.sh generator.sh installer.sh; do
         if [[ ! -f "${LIB_DIR}/${file}" ]]; then
             echo "Error: Required file lib/${file} not found"
             exit 1
@@ -124,7 +124,7 @@ else
 fi
 
 # Source utility modules with error handling
-for module in ui.sh validator.sh prompts.sh generator.sh installer.sh; do
+for module in ui.sh validator.sh gum.sh prompts.sh generator.sh installer.sh; do
     module_path="${LIB_DIR}/${module}"
     if [[ "$DEBUG" == "true" ]]; then
         echo "Sourcing ${module}..."
@@ -158,6 +158,15 @@ fi
 
 # Main setup flow
 main() {
+    # Detect and inform about gum
+    if [ "$USE_GUM" = true ]; then
+        echo -e "${GREEN}✓${NC} Gum detected - using enhanced UI" >&2
+        echo "" >&2
+    else
+        echo -e "${DIM}ℹ Tip: Install gum for an enhanced experience: https://github.com/charmbracelet/gum${NC}" >&2
+        echo "" >&2
+    fi
+    
     ui_header "DevKit Setup Wizard"
     
     # Validate prerequisites

@@ -8,6 +8,11 @@ REQUIRED_TOOLS=(
     "curl:Command line tool for transferring data"
 )
 
+# Optional tools (recommended but not required)
+OPTIONAL_TOOLS=(
+    "gum:Charmbracelet Gum - Enhanced terminal UI"
+)
+
 # Check if a command exists
 command_exists() {
     command -v "$1" >/dev/null 2>&1
@@ -25,6 +30,9 @@ get_tool_version() {
             ;;
         curl)
             curl --version 2>/dev/null | head -n1 | awk '{print $2}'
+            ;;
+        gum)
+            gum --version 2>/dev/null | awk '{print $3}'
             ;;
         *)
             echo "unknown"
@@ -91,6 +99,17 @@ get_install_instructions() {
                 echo "Install curl for your system"
             fi
             ;;
+        gum)
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+                echo "brew install gum"
+            elif [[ -f /etc/debian_version ]]; then
+                echo "See https://github.com/charmbracelet/gum#installation"
+            elif [[ -f /etc/redhat-release ]]; then
+                echo "See https://github.com/charmbracelet/gum#installation"
+            else
+                echo "See https://github.com/charmbracelet/gum#installation"
+            fi
+            ;;
         *)
             echo "See documentation"
             ;;
@@ -110,6 +129,15 @@ validate_prerequisites() {
     done
     
     echo ""
+    
+    # Check optional tools
+    if [ ${#OPTIONAL_TOOLS[@]} -gt 0 ]; then
+        echo -e "${DIM}Optional tools:${NC}"
+        for tool_info in "${OPTIONAL_TOOLS[@]}"; do
+            validate_tool "$tool_info" || true  # Don't fail on optional tools
+        done
+        echo ""
+    fi
     
     if [ "$all_valid" = true ]; then
         ui_success "All prerequisites are satisfied!"
