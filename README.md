@@ -1,3 +1,4 @@
+```sh
 project-installer/
 ├── .github/
 │   └── workflows/
@@ -32,8 +33,4 @@ project-installer/
 ├── cli.js                        # Entry point CLI
 ├── LICENSE
 └── README.md
-
-# Fichiers générés (à ne pas commit)
-bin/                              # Binaires téléchargés
-target/                           # Build Rust
-node_modules/
+```
