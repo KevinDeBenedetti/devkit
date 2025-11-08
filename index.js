@@ -5,7 +5,7 @@ const binaryName = process.platform === 'win32' ? 'devkit.exe' : 'devkit';
 const binaryPath = path.join(__dirname, 'bin', binaryName);
 
 /**
- * Exécute une commande devkit
+ * Execute a devkit command
  */
 function executeCommand(args) {
   try {
@@ -15,12 +15,12 @@ function executeCommand(args) {
     });
     return result;
   } catch (error) {
-    throw new Error(`Erreur devkit: ${error.message}`);
+    throw new Error(`devkit error: ${error.message}`);
   }
 }
 
 /**
- * Liste toutes les stacks disponibles
+ * List all available stacks
  */
 async function listStacks() {
   const output = executeCommand(['list']);
@@ -31,15 +31,15 @@ async function listStacks() {
 }
 
 /**
- * Configure un projet avec la stack spécifiée
+ * Configure a project with the specified stack
  */
 async function configureStack(options) {
   if (!options.stack) {
-    throw new Error('Le paramètre "stack" est requis');
+    throw new Error('The "stack" parameter is required');
   }
 
   const args = ['config', options.stack];
-  
+
   if (options.projectPath) {
     process.chdir(options.projectPath);
   }
@@ -48,10 +48,10 @@ async function configureStack(options) {
 }
 
 /**
- * Récupère la configuration d'une stack (placeholder pour future implémentation)
+ * Get a stack configuration (placeholder for future implementation)
  */
 async function getStackConfig(stack) {
-  throw new Error('getStackConfig n\'est pas encore implémenté');
+  throw new Error('getStackConfig is not implemented yet');
 }
 
 module.exports = {

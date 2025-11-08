@@ -2,35 +2,35 @@
 project-installer/
 ├── .github/
 │   └── workflows/
-│       └── release.yml           # Automatisation build + publish
+│       └── release.yml           # Automate build + publish
 │
-├── src/                          # CODE RUST
-│   ├── main.rs                   # Point d'entrée
+├── src/                          # RUST CODE
+│   ├── main.rs                   # Entry point
 │   ├── cli/
 │   │   ├── mod.rs
-│   │   └── commands.rs           # Commandes CLI
+│   │   └── commands.rs           # CLI commands
 │   └── ui/
 │       ├── mod.rs
-│       └── installer.rs          # Interface ratatui (optionnel pour v1)
+│       └── installer.rs          # ratatui interface (optional for v1)
 │
-├── scripts/                      # SCRIPTS NPM
-│   └── install-binary.js         # Télécharge le binaire au postinstall
+├── scripts/                      # NPM SCRIPTS
+│   └── install-binary.js         # Download binary on postinstall
 │
 ├── test/                         # TESTS
-│   └── test-local.js             # Test de l'API Node.js
+│   └── test-local.js             # Node.js API test
 │
-├── examples/                     # EXEMPLES D'USAGE
+├── examples/                     # USAGE EXAMPLES
 │   ├── api-usage.js
 │   └── cli-usage.sh
 │
 ├── .gitignore
 ├── .npmignore
-├── Cargo.toml                    # Config Rust
+├── Cargo.toml                    # Rust config
 ├── Cargo.lock
-├── package.json                  # Config npm
-├── index.js                      # API Node.js
-├── index.d.ts                    # Types TypeScript
-├── cli.js                        # Entry point CLI
+├── package.json                  # npm config
+├── index.js                      # Node.js API
+├── index.d.ts                    # TypeScript types
+├── cli.js                        # CLI entry point
 ├── LICENSE
 └── README.md
 ```

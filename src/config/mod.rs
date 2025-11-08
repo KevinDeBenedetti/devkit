@@ -25,43 +25,45 @@ pub fn apply_stack_config(stack_name: &str, base_path: &str) -> Result<()> {
     let config = get_stack_config(stack_name)?;
     let base_path = PathBuf::from(base_path);
 
-    // Affiche l'arborescence actuelle
-    println!("\n📂 Répertoire cible : {}", base_path.display());
+    // Print current tree
+    println!("\n📂 Target directory: {}", base_path.display());
     display_tree(&base_path, 0, 2)?;
 
-    println!("\n🔧 Configuration de la stack {}...", config.name);
+    println!("\n🔧 Configuring stack {}...", config.name);
 
-    // Crée les fichiers de configuration (Dockerfile, Makefile, .dockerignore, etc.)
+    // Create configuration files (Dockerfile, Makefile, .dockerignore, etc.)
     for file in &config.files {
         let file_path = base_path.join(&file.path);
-        create_file(&file_path, &file.content)
-            .context(format!("Erreur lors de la création de {}", file.path))?;
+        create_file(&file_path, &file.content).context(format!("Error creating {}", file.path))?;
     }
 
-    println!("\n✓ Configuration terminée !");
-    println!("\n📂 Arborescence mise à jour :");
+    println!("\n✓ Configuration complete!");
+    println!("\n📂 Updated tree:");
     display_tree(&base_path, 0, 2)?;
 
-    println!("\n📝 Prochaines étapes :");
+    println!("\n📝 Next steps:");
     println!(
-        "  cd {}        # Se déplacer dans le projet",
+        "  cd {}        # Change to project directory",
         base_path.display()
     );
-    println!("  make help      # Voir toutes les commandes disponibles");
-    println!("  make install   # Installer les dépendances");
-    println!("  make dev       # Lancer en développement");
+    println!("  make help      # See all available commands");
+    println!("  make install   # Install dependencies");
+    println!("  make dev       # Run in development");
 
     Ok(())
 }
 
-/// Affiche l'arborescence d'un répertoire
+/// Display a directory tree
 fn display_tree(path: &Path, depth: usize, max_depth: usize) -> Result<()> {
     if depth > max_depth {
         return Ok(());
     }
 
     if !path.exists() {
-        println!("{}└── (répertoire vide ou inexistant)", "  ".repeat(depth));
+        println!(
+            "{}└── (empty or non-existent directory)",
+            "  ".repeat(depth)
+        );
         return Ok(());
     }
 
@@ -76,7 +78,7 @@ fn display_tree(path: &Path, depth: usize, max_depth: usize) -> Result<()> {
         let file_name = entry.file_name();
         let file_name_str = file_name.to_string_lossy();
 
-        // Ignore les dossiers cachés et node_modules
+        // Ignore hidden folders and node_modules
         if file_name_str.starts_with('.')
             || file_name_str == "node_modules"
             || file_name_str == "target"
@@ -94,20 +96,18 @@ fn display_tree(path: &Path, depth: usize, max_depth: usize) -> Result<()> {
     Ok(())
 }
 
-/// Crée un fichier avec son contenu
+/// Create a file with its content
 fn create_file(path: &Path, content: &str) -> Result<()> {
-    // Crée les dossiers parents si nécessaire
+    // Create parent directories if necessary
     if let Some(parent) = path.parent() {
-        fs::create_dir_all(parent).context(format!(
-            "Impossible de créer le dossier {}",
-            parent.display()
-        ))?;
+        fs::create_dir_all(parent)
+            .context(format!("Unable to create directory {}", parent.display()))?;
     }
 
-    // Écrit le fichier
-    fs::write(path, content).context(format!("Impossible d'écrire {}", path.display()))?;
+    // Write the file
+    fs::write(path, content).context(format!("Unable to write {}", path.display()))?;
 
-    println!("  ✓ {} créé", path.display());
+    println!("  ✓ {} created", path.display());
     Ok(())
 }
 
@@ -115,7 +115,7 @@ fn get_stack_config(stack_name: &str) -> Result<StackConfig> {
     match stack_name {
         "vue" => Ok(StackConfig {
             name: "Vue".to_string(),
-            description: "Application Vue 3 avec TypeScript".to_string(),
+            description: "Vue 3 application with TypeScript".to_string(),
             files: vec![
                 FileTemplate {
                     path: "Makefile".to_string(),
@@ -138,7 +138,7 @@ fn get_stack_config(stack_name: &str) -> Result<StackConfig> {
         }),
         "nuxt" => Ok(StackConfig {
             name: "Nuxt".to_string(),
-            description: "Application Nuxt 3 avec TypeScript".to_string(),
+            description: "Nuxt 3 application with TypeScript".to_string(),
             files: vec![
                 FileTemplate {
                     path: "Makefile".to_string(),
@@ -157,7 +157,7 @@ fn get_stack_config(stack_name: &str) -> Result<StackConfig> {
         }),
         "fastapi" => Ok(StackConfig {
             name: "FastAPI".to_string(),
-            description: "API REST avec FastAPI et Python".to_string(),
+            description: "REST API with FastAPI and Python".to_string(),
             files: vec![
                 FileTemplate {
                     path: "Makefile".to_string(),
@@ -178,6 +178,6 @@ fn get_stack_config(stack_name: &str) -> Result<StackConfig> {
                 "pydantic".to_string(),
             ],
         }),
-        _ => Err(anyhow!("Stack '{}' non reconnue", stack_name)),
+        _ => Err(anyhow!("Stack '{}' not recognized", stack_name)),
     }
 }

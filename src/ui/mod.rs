@@ -214,7 +214,7 @@ fn run_app<B: ratatui::backend::Backend>(terminal: &mut Terminal<B>, app: &mut A
                     ])
                     .split(f.area());
 
-                let title = Paragraph::new("DevKit - Configuration de projet")
+                let title = Paragraph::new("DevKit - Project Setup")
                     .style(
                         Style::default()
                             .fg(Color::Cyan)
@@ -225,7 +225,7 @@ fn run_app<B: ratatui::backend::Backend>(terminal: &mut Terminal<B>, app: &mut A
                 f.render_widget(title, chunks[0]);
 
                 let input_text = if app.path_input.is_empty() {
-                    ". (répertoire courant)"
+                    ". (current directory)"
                 } else {
                     &app.path_input
                 };
@@ -235,7 +235,7 @@ fn run_app<B: ratatui::backend::Backend>(terminal: &mut Terminal<B>, app: &mut A
                     .block(
                         Block::default()
                             .borders(Borders::ALL)
-                            .title("📂 Chemin du projet (Entrée pour valider)"),
+                            .title("📂 Project Path (Enter to confirm)"),
                     );
                 f.render_widget(input, chunks[1]);
 
@@ -254,11 +254,11 @@ fn run_app<B: ratatui::backend::Backend>(terminal: &mut Terminal<B>, app: &mut A
                 let tree = List::new(tree_items).block(
                     Block::default()
                         .borders(Borders::ALL)
-                        .title("📁 Arborescence du projet"),
+                        .title("📁 Project Tree"),
                 );
                 f.render_widget(tree, chunks[2]);
 
-                let help = Paragraph::new("Tapez le chemin | Entrée: Valider | Esc: Annuler")
+                let help = Paragraph::new("Type path | Enter: Confirm | Esc: Cancel")
                     .style(Style::default().fg(Color::DarkGray))
                     .alignment(Alignment::Center)
                     .block(Block::default().borders(Borders::ALL));
@@ -275,7 +275,7 @@ fn run_app<B: ratatui::backend::Backend>(terminal: &mut Terminal<B>, app: &mut A
                     ])
                     .split(f.area());
 
-                let title = Paragraph::new(format!("DevKit - Projet: {}", app.target_path))
+                let title = Paragraph::new(format!("DevKit - Project: {}", app.target_path))
                     .style(
                         Style::default()
                             .fg(Color::Cyan)
@@ -307,11 +307,11 @@ fn run_app<B: ratatui::backend::Backend>(terminal: &mut Terminal<B>, app: &mut A
                 let list = List::new(items).block(
                     Block::default()
                         .borders(Borders::ALL)
-                        .title("📚 Sélectionnez une stack"),
+                        .title("📚 Select a stack"),
                 );
                 f.render_widget(list, chunks[1]);
 
-                let help = Paragraph::new("↑/↓: Naviguer | Entrée: Sélectionner | Esc: Annuler")
+                let help = Paragraph::new("↑/↓: Navigate | Enter: Select | Esc: Cancel")
                     .style(Style::default().fg(Color::DarkGray))
                     .alignment(Alignment::Center)
                     .block(Block::default().borders(Borders::ALL));
@@ -339,12 +339,12 @@ fn run_app<B: ratatui::backend::Backend>(terminal: &mut Terminal<B>, app: &mut A
                 f.render_widget(title, chunks[0]);
 
                 let confirmation_text = format!(
-                    "Voulez-vous appliquer la configuration {} dans {} ?\n\n\
-                    Les fichiers suivants seront créés :\n\
+                    "Do you want to apply the {} configuration into {}?\n\n\
+                    The following files will be created:\n\
                     • Makefile\n\
                     • Dockerfile\n\
                     • .dockerignore\n\n\
-                    Cette action va créer ou écraser ces fichiers.",
+                    This action will create or overwrite these files.",
                     app.selected_stack, app.target_path
                 );
 
@@ -354,7 +354,7 @@ fn run_app<B: ratatui::backend::Backend>(terminal: &mut Terminal<B>, app: &mut A
                     .block(Block::default().borders(Borders::ALL));
                 f.render_widget(text, chunks[1]);
 
-                let help = Paragraph::new("Entrée: Confirmer | Esc: Annuler")
+                let help = Paragraph::new("Enter: Confirm | Esc: Cancel")
                     .style(Style::default().fg(Color::DarkGray))
                     .alignment(Alignment::Center)
                     .block(Block::default().borders(Borders::ALL));
@@ -371,7 +371,7 @@ fn run_app<B: ratatui::backend::Backend>(terminal: &mut Terminal<B>, app: &mut A
                     ])
                     .split(f.area());
 
-                let title = Paragraph::new("✓ Configuration terminée !")
+                let title = Paragraph::new("✓ Setup complete!")
                     .style(
                         Style::default()
                             .fg(Color::Green)
@@ -382,8 +382,8 @@ fn run_app<B: ratatui::backend::Backend>(terminal: &mut Terminal<B>, app: &mut A
                 f.render_widget(title, chunks[0]);
 
                 let options = vec![
-                    "🔄 Configurer un autre projet (monorepo)",
-                    "🚪 Quitter l'assistant",
+                    "🔄 Configure another project (monorepo)",
+                    "🚪 Quit assistant",
                 ];
 
                 let items: Vec<ListItem> = options
@@ -408,11 +408,11 @@ fn run_app<B: ratatui::backend::Backend>(terminal: &mut Terminal<B>, app: &mut A
                 let list = List::new(items).block(
                     Block::default()
                         .borders(Borders::ALL)
-                        .title("Que souhaitez-vous faire ?"),
+                        .title("What would you like to do?"),
                 );
                 f.render_widget(list, chunks[1]);
 
-                let help = Paragraph::new("↑/↓: Naviguer | Entrée: Valider")
+                let help = Paragraph::new("↑/↓: Navigate | Enter: Confirm")
                     .style(Style::default().fg(Color::DarkGray))
                     .alignment(Alignment::Center)
                     .block(Block::default().borders(Borders::ALL));
