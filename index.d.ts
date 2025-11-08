@@ -1,44 +1,31 @@
-export interface InstallerOptions {
-  silent?: boolean;
-  cwd?: string;
-}
-
-export interface ExecResult {
-  success: boolean;
-  code: number;
-  stdout?: string;
-  stderr?: string;
-}
-
-export interface DockerOptions extends InstallerOptions {
-  compose?: boolean;
-}
-
-export interface Template {
+export interface StackConfig {
   name: string;
   description: string;
+  files: FileTemplate[];
+  dependencies: string[];
 }
 
-export interface TemplatesResult {
-  success: boolean;
-  templates: Template[];
+export interface FileTemplate {
+  path: string;
+  content: string;
 }
 
-export class ProjectInstaller {
-  constructor(options?: InstallerOptions);
-  
-  init(template: string, output?: string, options?: InstallerOptions): ExecResult;
-  setupDocker(options?: DockerOptions): ExecResult;
-  setupMakefile(options?: InstallerOptions): ExecResult;
-  listTemplates(options?: InstallerOptions): TemplatesResult;
-  version(): string;
-  run(args: string[], options?: InstallerOptions): ExecResult;
-  runAsync(args: string[], options?: any): Promise<ExecResult>;
+export interface DevkitOptions {
+  stack: string;
+  projectPath?: string;
 }
 
-export function init(template: string, output?: string, options?: InstallerOptions): ExecResult;
-export function setupDocker(options?: DockerOptions): ExecResult;
-export function setupMakefile(options?: InstallerOptions): ExecResult;
-export function listTemplates(): TemplatesResult;
+/**
+ * Liste toutes les stacks disponibles
+ */
+export function listStacks(): Promise<string[]>;
 
-export default ProjectInstaller;
+/**
+ * Configure un projet avec la stack spécifiée
+ */
+export function configureStack(options: DevkitOptions): Promise<void>;
+
+/**
+ * Récupère la configuration d'une stack
+ */
+export function getStackConfig(stack: string): Promise<StackConfig>;

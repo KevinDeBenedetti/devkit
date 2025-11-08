@@ -1,185 +1,98 @@
+#!/usr/bin/env node
+
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
 const { execSync } = require('child_process');
 
-const REPO = 'KevinDeBenedetti/devkit';
+const PACKAGE_NAME = '@kevindebenedetti/devkit';
 const VERSION = require('../package.json').version;
 
-function getPlatformInfo() {
+function getPlatform() {
   const platform = process.platform;
   const arch = process.arch;
-  
+
   const platformMap = {
-    'darwin': {
-      'x64': 'x86_64-apple-darwin',
-      'arm64': 'aarch64-apple-darwin'
-    },
-    'linux': {
-      'x64': 'x86_64-unknown-linux-gnu',
-      'arm64': 'aarch64-unknown-linux-gnu'
-    },
-    'win32': {
-      'x64': 'x86_64-pc-windows-gnu'
-    }
+    'darwin-x64': 'darwin-x64',
+    'darwin-arm64': 'darwin-arm64',
+    'linux-x64': 'linux-x64',
+    'linux-arm64': 'linux-arm64',
+    'win32-x64': 'windows-x64',
   };
-  
-  const target = platformMap[platform]?.[arch];
-  
-  if (!target) {
-    throw new Error(`Unsupported platform: ${platform}-${arch}`);
+
+  const key = `${platform}-${arch}`;
+  if (!platformMap[key]) {
+    throw new Error(`Plateforme non supportée: ${key}`);
   }
-  
-  return {
-    platform,
-    arch,
-    target,
-    binaryName: platform === 'win32' ? 'installer.exe' : 'installer'
-  };
+
+  return platformMap[key];
 }
 
-async function downloadBinary(url, destination) {
+function getBinaryName() {
+  return process.platform === 'win32' ? 'devkit.exe' : 'devkit';
+}
+
+async function downloadBinary(url, dest) {
   return new Promise((resolve, reject) => {
-    console.log(`📥 Downloading binary from ${url}...`);
-    
-    const file = fs.createWriteStream(destination);
-    
-    const request = https.get(url, (response) => {
-      // Handle redirects
-      if (response.statusCode === 301 || response.statusCode === 302) {
-        return downloadBinary(response.headers.location, destination)
+    const file = fs.createWriteStream(dest);
+    https.get(url, (response) => {
+      if (response.statusCode === 302 || response.statusCode === 301) {
+        // Suit les redirections
+        return downloadBinary(response.headers.location, dest)
           .then(resolve)
           .catch(reject);
       }
       
       if (response.statusCode !== 200) {
-        reject(new Error(`Download failed: HTTP ${response.statusCode}`));
+        reject(new Error(`Erreur HTTP: ${response.statusCode}`));
         return;
       }
-      
-      const totalBytes = parseInt(response.headers['content-length'], 10);
-      let downloadedBytes = 0;
-      
-      response.on('data', (chunk) => {
-        downloadedBytes += chunk.length;
-        if (totalBytes) {
-          const percent = ((downloadedBytes / totalBytes) * 100).toFixed(1);
-          process.stdout.write(`\r📦 Progress: ${percent}%`);
-        }
-      });
-      
+
       response.pipe(file);
-      
       file.on('finish', () => {
         file.close();
-        console.log('\n✓ Download complete');
         resolve();
       });
-    });
-    
-    request.on('error', (err) => {
-      fs.unlink(destination, () => {});
+    }).on('error', (err) => {
+      fs.unlink(dest, () => {});
       reject(err);
     });
   });
 }
 
-function buildFromSource(binaryPath, binaryName) {
-  console.log('⚠️  Building from source...');
-  
+async function install() {
   try {
-    execSync('cargo build --release', {
-      stdio: 'inherit',
-      cwd: path.join(__dirname, '..')
-    });
+    console.log('📦 Installation de devkit...');
     
-    const sourceBinary = path.join(
-      __dirname,
-      '..',
-      'target',
-      'release',
-      binaryName
-    );
-    
-    if (!fs.existsSync(sourceBinary)) {
-      throw new Error('Build completed but binary not found');
-    }
-    
-    fs.copyFileSync(sourceBinary, binaryPath);
-    console.log('✅ Built from source successfully!');
-    return true;
-  } catch (error) {
-    console.error('❌ Build failed:', error.message);
-    return false;
-  }
-}
-
-async function installBinary() {
-  try {
-    console.log('🚀 Installing project-installer binary...\n');
-    
-    const platformInfo = getPlatformInfo();
+    const platform = getPlatform();
+    const binaryName = getBinaryName();
     const binDir = path.join(__dirname, '..', 'bin');
-    const binaryPath = path.join(binDir, platformInfo.binaryName);
-    
-    // Check if already installed
-    if (fs.existsSync(binaryPath)) {
-      console.log('✅ Binary already installed');
-      return;
-    }
-    
-    // Create bin directory
+    const binaryPath = path.join(binDir, binaryName);
+
+    // Crée le dossier bin s'il n'existe pas
     if (!fs.existsSync(binDir)) {
       fs.mkdirSync(binDir, { recursive: true });
     }
-    
-    // Try to download from GitHub Releases
-    const downloadUrl = `https://github.com/${REPO}/releases/download/v${VERSION}/installer-${platformInfo.target}`;
-    
-    try {
-      await downloadBinary(downloadUrl, binaryPath);
-      
-      // Make executable on Unix
-      if (platformInfo.platform !== 'win32') {
-        fs.chmodSync(binaryPath, '755');
-      }
-      
-      console.log('✅ Installation successful!\n');
-      console.log('Run: npx installer --help');
-      
-    } catch (downloadError) {
-      console.log('⚠️  Download failed:', downloadError.message);
-      console.log('📦 Attempting to build from source...\n');
-      
-      const buildSuccess = buildFromSource(binaryPath, platformInfo.binaryName);
-      
-      if (!buildSuccess) {
-        throw new Error(
-          'Installation failed. Please ensure Rust is installed:\n' +
-          'https://rustup.rs/'
-        );
-      }
-      
-      // Make executable on Unix
-      if (platformInfo.platform !== 'win32') {
-        fs.chmodSync(binaryPath, '755');
-      }
+
+    // URL du binaire sur GitHub Releases
+    const url = `https://github.com/KevinDeBenedetti/devkit/releases/download/v${VERSION}/devkit-${platform}${process.platform === 'win32' ? '.exe' : ''}`;
+
+    console.log(`📥 Téléchargement depuis: ${url}`);
+    await downloadBinary(url, binaryPath);
+
+    // Rend le binaire exécutable (Unix)
+    if (process.platform !== 'win32') {
+      fs.chmodSync(binaryPath, '755');
     }
-    
+
+    console.log('✅ devkit installé avec succès !');
+    console.log(`\n🚀 Lancez 'devkit init' pour commencer\n`);
   } catch (error) {
-    console.error('\n❌ Installation failed:', error.message);
-    console.error('\nTroubleshooting:');
-    console.error('1. Ensure you have internet connection');
-    console.error('2. Install Rust: https://rustup.rs/');
-    console.error('3. Run: cargo build --release');
+    console.error('❌ Erreur lors de l\'installation:', error.message);
+    console.error('\n💡 Essayez d\'installer manuellement depuis:');
+    console.error(`   https://github.com/KevinDeBenedetti/devkit/releases\n`);
     process.exit(1);
   }
 }
 
-// Only run if not in npm pack/publish
-if (!process.env.npm_package_json || fs.existsSync(path.join(__dirname, '..', 'Cargo.toml'))) {
-  installBinary().catch((error) => {
-    console.error('Fatal error:', error);
-    process.exit(1);
-  });
-}
+install();
