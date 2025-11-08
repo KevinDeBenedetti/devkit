@@ -1,44 +1,7 @@
 {
-    "name": "@my-scope/devkit",
-    "version": "0.1.0",
-    "description": "Project installer with Docker, Makefile and templates.",
-    "main": "index.js",
-    "types": "index.d.ts",
-    "bin": {
-        "installer": "cli.js"
-    },
-    "scripts": {
-        "postinstall": "node scripts/install-binary.js",
-        "build": "cargo build --release",
-        "test": "node test/test-local.js"
-    },
-    "files": [
-        "index.js",
-        "index.d.ts",
-        "cli.js",
-        "scripts/",
-        "README.md"
-    ],
-    "keywords": [
-        "installer", 
-        "cli",
-        "rust",
-        "docker",
-        "makefile",
-        "template",
-        "project-setup"
-    ],
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/KevinDeBenedetti/devkit.git"
-    },
-    "bugs": {
-        "url": "https://github.com/KevinDeBenedetti/devkit/issues"
-    },
-    "homepage": "https://github.com/KevinDeBenedetti/devkit#readme",
-    "author": "Kevin De Benedetti",
-    "license": "MIT",
-    "engines": {
-        "node": ">=18.0.0"
-    }
+  "dependencies": {
+    "vue": "latest"
+  },
+  "name": "my-project",
+  "version": "1.0.0"
 }
