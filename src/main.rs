@@ -1,57 +1,33 @@
-use clap::{Parser, Subcommand};
-use anyhow::Result;
 mod cli;
+mod ui;
+mod config;
 
-#[derive(Parser)]
-#[command(name = "installer")]
-#[command(version = "0.1.0")]
-#[command(about = "Project installer tool", long_about = None)]
-struct Cli {
-    #[command(subcommand)]
-    command: Commands,
-}
-
-#[derive(Subcommand)]
-enum Commands {
-    Init {
-        template: String,
-
-        #[arg(default_value = ".")]
-        output: String,
-    },
-
-    Docker {
-        #[arg(long)]
-        compose: bool,
-    },
-
-    Makefile,
-
-    List,
-
-    Version
-}
+use anyhow::Result;
+use clap::Parser;
+use cli::Cli;
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
-
+    
     match cli.command {
-        Commands::Init { template, output } => {
-            cli::commands::init(&template, &output)?;
+        cli::Commands::Init => {
+            // Lance l'interface TUI
+            ui::run_interactive_setup()?;
         }
-        Commands::Docker { compose } => {
-            cli::commands::setup_docker(compose)?;
+        cli::Commands::Config { stack } => {
+            // Configuration directe sans TUI
+            config::apply_stack_config(&stack)?;
+            println!("✓ Configuration {} appliquée avec succès", stack);
         }
-        Commands::Makefile => {
-            cli::commands::setup_makefile()?;
-        }
-        Commands::List => {
-            cli::commands::list_templates()?;
-        }
-        Commands::Version => {
-            println!("installer v{}", env!("CARGO_PKG_VERSION"));
+        cli::Commands::List => {
+            // Liste les stacks disponibles
+            let stacks = config::get_available_stacks();
+            println!("Stacks disponibles :");
+            for stack in stacks {
+                println!("  • {}", stack);
+            }
         }
     }
-
+    
     Ok(())
 }
