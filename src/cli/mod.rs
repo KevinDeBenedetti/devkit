@@ -11,14 +11,21 @@ pub struct Cli {
 #[derive(Subcommand)]
 pub enum Commands {
     /// Lance l'interface interactive pour configurer le projet
-    Init,
-    
+    Init {
+        /// Chemin du projet (optionnel, demandé interactivement si absent)
+        #[arg(short, long)]
+        path: Option<String>,
+    },
+
     /// Configure directement une stack spécifique
     Config {
-        /// Nom de la stack (react, vue, angular, etc.)
+        /// Nom de la stack (vue, nuxt, fastapi)
         stack: String,
+        /// Chemin du projet (optionnel, utilise le répertoire courant par défaut)
+        #[arg(short, long)]
+        path: Option<String>,
     },
-    
+
     /// Liste toutes les stacks disponibles
     List,
 }
