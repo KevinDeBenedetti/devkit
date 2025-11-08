@@ -22,7 +22,7 @@ function getPlatform() {
 
   const key = `${platform}-${arch}`;
   if (!platformMap[key]) {
-    throw new Error(`Plateforme non supportée: ${key}`);
+    throw new Error(`Unsupported platform: ${key}`);
   }
 
   return platformMap[key];
@@ -42,7 +42,7 @@ async function downloadBinary(url, dest) {
           .then(resolve)
           .catch(reject);
       }
-      
+
       if (response.statusCode !== 200) {
         reject(new Error(`Erreur HTTP: ${response.statusCode}`));
         return;
@@ -54,7 +54,7 @@ async function downloadBinary(url, dest) {
         resolve();
       });
     }).on('error', (err) => {
-      fs.unlink(dest, () => {});
+      fs.unlink(dest, () => { });
       reject(err);
     });
   });
@@ -62,8 +62,8 @@ async function downloadBinary(url, dest) {
 
 async function install() {
   try {
-    console.log('📦 Installation de devkit...');
-    
+    console.log('📦 Installing devkit...');
+
     const platform = getPlatform();
     const binaryName = getBinaryName();
     const binDir = path.join(__dirname, '..', 'bin');
@@ -77,7 +77,7 @@ async function install() {
     // URL du binaire sur GitHub Releases
     const url = `https://github.com/KevinDeBenedetti/devkit/releases/download/v${VERSION}/devkit-${platform}${process.platform === 'win32' ? '.exe' : ''}`;
 
-    console.log(`📥 Téléchargement depuis: ${url}`);
+    console.log(`📥 Downloading from: ${url}`);
     await downloadBinary(url, binaryPath);
 
     // Rend le binaire exécutable (Unix)
@@ -85,11 +85,11 @@ async function install() {
       fs.chmodSync(binaryPath, '755');
     }
 
-    console.log('✅ devkit installé avec succès !');
-    console.log(`\n🚀 Lancez 'devkit init' pour commencer\n`);
+    console.log('✅ devkit installed successfully!');
+    console.log(`\n🚀 Run 'devkit init' to get started\n`);
   } catch (error) {
-    console.error('❌ Erreur lors de l\'installation:', error.message);
-    console.error('\n💡 Essayez d\'installer manuellement depuis:');
+    console.error('❌ Error during installation:', error.message);
+    console.error('\n💡 Try installing manually from:');
     console.error(`   https://github.com/KevinDeBenedetti/devkit/releases\n`);
     process.exit(1);
   }

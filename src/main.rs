@@ -11,22 +11,22 @@ fn main() -> Result<()> {
 
     match cli.command {
         cli::Commands::Init { path } => {
-            // Lance l'interface TUI
+            // Launch the TUI interface
             ui::run_interactive_setup(path)?;
         }
         cli::Commands::Config { stack, path } => {
             let target_path = path.unwrap_or_else(|| ".".to_string());
-            // Configuration directe sans TUI
+            // Direct configuration without TUI
             config::apply_stack_config(&stack, &target_path)?;
             println!(
-                "✓ Configuration {} appliquée avec succès dans {}",
+                "✓ Configuration {} applied successfully in {}",
                 stack, target_path
             );
         }
         cli::Commands::List => {
-            // Liste les stacks disponibles
+            // List available stacks
             let stacks = config::get_available_stacks();
-            println!("Stacks disponibles :");
+            println!("Available stacks:");
             for stack in stacks {
                 println!("  • {}", stack);
             }

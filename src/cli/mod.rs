@@ -2,7 +2,7 @@ use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[command(name = "devkit")]
-#[command(about = "Configuration de projets web par stack", long_about = None)]
+#[command(about = "Configure web projects by stack", long_about = None)]
 pub struct Cli {
     #[command(subcommand)]
     pub command: Commands,
@@ -10,22 +10,22 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
-    /// Lance l'interface interactive pour configurer le projet
+    /// Launch the interactive interface to configure the project
     Init {
-        /// Chemin du projet (optionnel, demandé interactivement si absent)
+        /// Project path (optional, prompted interactively if absent)
         #[arg(short, long)]
         path: Option<String>,
     },
 
-    /// Configure directement une stack spécifique
+    /// Directly configure a specific stack
     Config {
-        /// Nom de la stack (vue, nuxt, fastapi)
+        /// Name of the stack (vue, nuxt, fastapi)
         stack: String,
-        /// Chemin du projet (optionnel, utilise le répertoire courant par défaut)
+        /// Project path (optional, defaults to current directory)
         #[arg(short, long)]
         path: Option<String>,
     },
 
-    /// Liste toutes les stacks disponibles
+    /// List all available stacks
     List,
 }
