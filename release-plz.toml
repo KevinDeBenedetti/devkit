@@ -11,9 +11,21 @@ git_tag_enable = true
 # Enable creation of GitHub releases
 git_release_enable = true
 
-# Automatic updating of the CHANGELOG
+# Automatic CHANGELOG update
 changelog_update = true
 changelog_path = "CHANGELOG.md"
+
+# Draft: set to false to publish automatically
+git_release_draft = false
+
+# Use CHANGELOG content for release notes
+git_release_body = "{{ changelog }}"
+
+# Pre-release: "prod" (default), "pre", or "auto"
+git_release_type = "prod"
+
+# Mark as latest release
+git_release_latest = true
 
 # Include these commit types in the changelog
 changelog_include = [
@@ -26,16 +38,27 @@ changelog_include = [
     "ci"
 ]
 
-# Configuration for GitHub release notes format
-[workspace.release]
-# Enable GitHub release notes
-git_release_enable = true
+# Labels for the release PR
+pr_labels = ["release"]
 
-# Use the content of the CHANGELOG for release notes
-git_release_body = "{{changelog}}"
+# PR title (optional, customizable)
+# pr_name = "chore: release {% if package and version %}{{ package }} v{{ version }}{% endif %}"
 
-# Draft: set to false to publish automatically
-git_release_draft = false
+# Changelog configuration (optional)
+[changelog]
+# Changelog header
+header = """# Changelog
 
-# Pre-release: set to true to mark as pre-release
-git_release_prerelease = false
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+"""
+
+# Never skip commits with breaking changes
+protect_breaking_commits = true
+
+# Sort commits from newest to oldest
+sort_commits = "newest"
