@@ -1,6 +1,6 @@
 [package]
 name = "devkit"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Kevin De Benedetti"]
 description = "A tool to configure web projects by stack"
