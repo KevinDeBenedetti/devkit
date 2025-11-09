@@ -37,14 +37,14 @@ async function downloadBinary(url, dest) {
     const file = fs.createWriteStream(dest);
     https.get(url, (response) => {
       if (response.statusCode === 302 || response.statusCode === 301) {
-        // Suit les redirections
+        // Follow redirects
         return downloadBinary(response.headers.location, dest)
           .then(resolve)
           .catch(reject);
       }
 
       if (response.statusCode !== 200) {
-        reject(new Error(`Erreur HTTP: ${response.statusCode}`));
+        reject(new Error(`HTTP error: ${response.statusCode}`));
         return;
       }
 
@@ -69,18 +69,18 @@ async function install() {
     const binDir = path.join(__dirname, '..', 'bin');
     const binaryPath = path.join(binDir, binaryName);
 
-    // Crée le dossier bin s'il n'existe pas
+    // Create the bin folder if it doesn't exist
     if (!fs.existsSync(binDir)) {
       fs.mkdirSync(binDir, { recursive: true });
     }
 
-    // URL du binaire sur GitHub Releases
+    // Binary URL on GitHub Releases
     const url = `https://github.com/KevinDeBenedetti/devkit/releases/download/v${VERSION}/devkit-${platform}${process.platform === 'win32' ? '.exe' : ''}`;
 
     console.log(`📥 Downloading from: ${url}`);
     await downloadBinary(url, binaryPath);
 
-    // Rend le binaire exécutable (Unix)
+    // Make the binary executable (Unix)
     if (process.platform !== 'win32') {
       fs.chmodSync(binaryPath, '755');
     }
