@@ -1,53 +1,14 @@
-# release-plz configuration for devkit
-# Documentation: https://release-plz.ieni.dev/docs/config
-
 [workspace]
-# Disable publishing to crates.io
-publish = false
-
-# Enable creation of Git tags
-git_tag_enable = true
-
-# Enable creation of GitHub releases
 git_release_enable = true
-
-# Automatic CHANGELOG update
+pr_labels = ["release"]
+pr_branch_prefix = "release-plz-"
+dependencies_update = true
 changelog_update = true
-changelog_path = "CHANGELOG.md"
-
-# Draft: set to false to publish automatically
-git_release_draft = false
-
-# Use CHANGELOG content for release notes
+publish = false
 git_release_body = "{{ changelog }}"
-
-# Pre-release: "prod" (default), "pre", or "auto"
-git_release_type = "prod"
-
-# Mark as latest release
+git_release_draft = false
 git_release_latest = true
 
-# Labels for the release PR
-pr_labels = ["release"]
-
-# PR title (optional, customizable)
-# pr_name = "chore: release {% if package and version %}{{ package }} v{{ version }}{% endif %}"
-
-# Changelog configuration (optional)
 [changelog]
-# Changelog header
-header = """# Changelog
-
-All notable changes to this project will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-## [Unreleased]
-"""
-
-# Never skip commits with breaking changes
 protect_breaking_commits = true
-
-# Sort commits from newest to oldest
 sort_commits = "newest"
