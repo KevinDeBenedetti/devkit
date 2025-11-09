@@ -1,0 +1,11 @@
+[workspace]
+publish = false
+git_release_enable = true
+pr_labels = ["release"]
+pr_branch_prefix = "release-plz-"
+dependencies_update = true
+changelog_update = true
+git_release_body = "{{ changelog }}"
+git_release_draft = false
+git_release_latest = true
+
