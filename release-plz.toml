@@ -27,17 +27,6 @@ git_release_type = "prod"
 # Mark as latest release
 git_release_latest = true
 
-# Include these commit types in the changelog
-changelog_include = [
-    "feat",
-    "fix",
-    "perf",
-    "refactor",
-    "docs",
-    "build",
-    "ci"
-]
-
 # Labels for the release PR
 pr_labels = ["release"]
 
