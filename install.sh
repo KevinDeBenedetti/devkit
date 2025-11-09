@@ -25,6 +25,11 @@ case "$OS" in
         ;;
 esac
 
+# Check if BINARY is set
+if [ -z "$BINARY" ]; then
+    echo "❌ Unsupported OS/architecture combination: $OS/$ARCH"
+    exit 1
+fi
 # Download and install
 URL="https://github.com/$REPO/releases/latest/download/$BINARY"
 curl -fsSL "$URL" | tar xz -C /usr/local/bin
