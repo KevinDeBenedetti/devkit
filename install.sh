@@ -32,6 +32,12 @@ if [ -z "$BINARY" ]; then
 fi
 # Download and install
 URL="https://github.com/$REPO/releases/latest/download/$BINARY"
+
+# Check for write permissions to /usr/local/bin
+if [ ! -w /usr/local/bin ]; then
+    echo "❌ Installation failed. You may need to run this script with sudo." >&2
+    exit 1
+fi
 curl -fsSL "$URL" | tar xz -C /usr/local/bin
 
 echo "✅ devkit installed successfully!"
