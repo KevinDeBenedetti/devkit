@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-  workflow_call: {}   # <-- allow this workflow to be called by other workflows
 
 jobs:
 
@@ -14,9 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      packages: write         # <-- needed if publishing packages (npm, GitHub Packages)
-      pull-requests: write
-      issues: write
     steps:
       - &checkout
         name: Checkout repository
@@ -40,9 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      packages: write
       pull-requests: write
-      issues: write
     concurrency:
       group: release-plz-${{ github.ref }}
       cancel-in-progress: false
