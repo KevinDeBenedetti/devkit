@@ -3,6 +3,7 @@
 const { spawn } = require('child_process');
 const path = require('path');
 
+// Launch the Rust binary with all arguments
 const binaryName = process.platform === 'win32' ? 'devkit.exe' : 'devkit';
 const binaryPath = path.join(__dirname, 'bin', binaryName);
 
@@ -13,7 +14,7 @@ const child = spawn(binaryPath, process.argv.slice(2), {
 });
 
 child.on('error', (error) => {
-  console.error('Erreur lors du lancement de devkit:', error.message);
+  console.error('Error launching devkit:', error.message);
   process.exit(1);
 });
 
