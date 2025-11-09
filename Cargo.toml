@@ -6,6 +6,7 @@ authors = ["Kevin De Benedetti"]
 description = "A tool to configure web projects by stack"
 license = "MIT"
 repository = "https://github.com/kevindebenedetti/devkit"
+homepage = "https://github.com/kevindebenedetti/devkit"
 
 [[bin]]
 name = "devkit"
