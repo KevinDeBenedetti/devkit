@@ -16,16 +16,16 @@ export interface DevkitOptions {
 }
 
 /**
- * Liste toutes les stacks disponibles
+ * List all available stacks
  */
 export function listStacks(): Promise<string[]>;
 
 /**
- * Configure un projet avec la stack spécifiée
+ * Configure a project with the specified stack
  */
 export function configureStack(options: DevkitOptions): Promise<void>;
 
 /**
- * Récupère la configuration d'une stack
+ * Retrieve the configuration of a stack
  */
 export function getStackConfig(stack: string): Promise<StackConfig>;
