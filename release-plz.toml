@@ -1,0 +1,41 @@
+# release-plz configuration for devkit
+# Documentation: https://release-plz.ieni.dev/docs/config
+
+[workspace]
+# Disable publishing to crates.io
+publish = false
+
+# Enable creation of Git tags
+git_tag_enable = true
+
+# Enable creation of GitHub releases
+git_release_enable = true
+
+# Automatic updating of the CHANGELOG
+changelog_update = true
+changelog_path = "CHANGELOG.md"
+
+# Include these commit types in the changelog
+changelog_include = [
+    "feat",
+    "fix",
+    "perf",
+    "refactor",
+    "docs",
+    "build",
+    "ci"
+]
+
+# Configuration for GitHub release notes format
+[workspace.release]
+# Enable GitHub release notes
+git_release_enable = true
+
+# Use the content of the CHANGELOG for release notes
+git_release_body = "{{changelog}}"
+
+# Draft: set to false to publish automatically
+git_release_draft = false
+
+# Pre-release: set to true to mark as pre-release
+git_release_prerelease = false
