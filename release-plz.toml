@@ -14,3 +14,4 @@ git_release_latest = true
 name = "devkit"
 publish = false
 git_tag_name = "v{{ version }}"
+registry = "fake-registry-to-disable-check"
