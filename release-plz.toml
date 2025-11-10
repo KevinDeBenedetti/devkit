@@ -13,3 +13,4 @@ git_release_latest = true
 [[package]]
 name = "devkit"
 publish = false
+git_tag_name = "v{{ version }}"
