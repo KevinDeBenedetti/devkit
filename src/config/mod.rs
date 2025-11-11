@@ -119,7 +119,7 @@ fn get_stack_config(stack_name: &str) -> Result<StackConfig> {
             files: vec![
                 FileTemplate {
                     path: "Makefile".to_string(),
-                    content: include_str!("../templates/vue/Makefile").to_string(),
+                    content: include_str!("../templates/vue/vue.mk").to_string(),
                 },
                 FileTemplate {
                     path: "Dockerfile".to_string(),
@@ -142,7 +142,7 @@ fn get_stack_config(stack_name: &str) -> Result<StackConfig> {
             files: vec![
                 FileTemplate {
                     path: "Makefile".to_string(),
-                    content: include_str!("../templates/nuxt/Makefile").to_string(),
+                    content: include_str!("../templates/nuxt/nuxt.mk").to_string(),
                 },
                 FileTemplate {
                     path: "Dockerfile".to_string(),
@@ -161,7 +161,7 @@ fn get_stack_config(stack_name: &str) -> Result<StackConfig> {
             files: vec![
                 FileTemplate {
                     path: "Makefile".to_string(),
-                    content: include_str!("../templates/fastapi/Makefile").to_string(),
+                    content: include_str!("../templates/fastapi/fastapi.mk").to_string(),
                 },
                 FileTemplate {
                     path: "Dockerfile".to_string(),
