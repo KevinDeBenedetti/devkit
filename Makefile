@@ -1,28 +1,30 @@
-# Makefile - common commands for a Rust project
-
 CARGO ?= cargo
-FEATURES ?=
-ARGS ?=
 
 all: build
 
 build:
-	$(CARGO) build $(if $(strip $(FEATURES)),--features $(FEATURES),)
+	$(CARGO) build
 
 release:
-	$(CARGO) build --release $(if $(strip $(FEATURES)),--features $(FEATURES),)
+	$(CARGO) build --release
 
 run:
-	$(CARGO) run $(if $(strip $(FEATURES)),--features $(FEATURES),) -- $(ARGS)
+	$(CARGO) run -- init
+
+run-list:
+	$(CARGO) run -- list
+
+run-config:
+	@echo "Usage: make run-config STACK=<stack> [PATH=<path>]"
+	@echo "Example: make run-config STACK=vue PATH=./my-project"
 
 run-release:
-	$(CARGO) run --release $(if $(strip $(FEATURES)),--features $(FEATURES),) -- $(ARGS)
+	$(CARGO) run --release -- init
 
 check:
-	$(CARGO) check $(if $(strip $(FEATURES)),--features $(FEATURES),)
-
+	$(CARGO) check
 test:
-	$(CARGO) test $(if $(strip $(FEATURES)),--features $(FEATURES),)
+	$(CARGO) test
 
 fmt:
 	$(CARGO) fmt
@@ -60,6 +62,6 @@ clean:
 ci: fmt-check clippy check test
 
 help:
-	@printf "Usage: make <target>\n\nTargets:\n  build         Build (default)\n  release       Build release\n  run           Run (pass ARGS=\"...\")\n  run-release   Run release build\n  check         cargo check\n  test          Run tests\n  fmt           Format code\n  fmt-check     Check formatting\n  clippy        Lint and treat warnings as errors\n  doc           Build docs\n  bench         Run benchmarks\n  install       cargo install --path .\n  package       cargo package\n  publish       cargo publish\n  update        cargo update\n  clean         cargo clean\n  ci            fmt-check, clippy, check, test\n\nOptional variables:\n  FEATURES=\"feat1,feat2\"  Build features\n  ARGS=\"...\"              Arguments forwarded to the binary\n"
+	@printf "Usage: make <target>\n\nTargets:\n  build         Build (default)\n  release       Build release\n  run           Run TUI (init command)\n  run-list      List available stacks\n  run-config    Show usage for config command\n  run-release   Run release build (init)\n  check         cargo check\n  test          Run tests\n  fmt           Format code\n  fmt-check     Check formatting\n  clippy        Lint and treat warnings as errors\n  doc           Build docs\n  bench         Run benchmarks\n  install       cargo install --path .\n  package       cargo package\n  publish       cargo publish\n  update        cargo update\n  clean         cargo clean\n  ci            fmt-check, clippy, check, test\n"
 
-.PHONY: all help build release run run-release check test fmt fmt-check clippy clippy-warn doc bench install package publish update clean ci
+.PHONY: all help build release run run-list run-config run-release check test fmt fmt-check clippy clippy-warn doc bench install package publish update clean ci
