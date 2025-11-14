@@ -121,4 +121,10 @@ impl App {
         };
         self.tree_lines = build_tree_lines(path, 3);
     }
+
+    pub fn cancel_to_path_selection(&mut self) {
+        self.state = AppState::SelectingPath;
+        self.selected_stack = String::new();
+        self.selected = 0;
+    }
 }
