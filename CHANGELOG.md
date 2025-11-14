@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0](https://github.com/KevinDeBenedetti/devkit/compare/v0.1.2...v0.2.0) (2025-11-14)
+
+
+### Features
+
+* add cancel functionality to path selection and update quit logic ([1c93dbe](https://github.com/KevinDeBenedetti/devkit/commit/1c93dbef8ba07908720c956f00a18590dcc99ca6))
+* add Makefile files for Rust project ([7903c05](https://github.com/KevinDeBenedetti/devkit/commit/7903c059c7d0ca72afb04122f093ef5020664b41))
+* add targets for FastAPI, Nuxt et Vue ([5c986ab](https://github.com/KevinDeBenedetti/devkit/commit/5c986ab08e5a03b3f12c74f1dc857620750148a9))
+
+
+### Bug Fixes
+
+* Makefile with right commands ([ee35005](https://github.com/KevinDeBenedetti/devkit/commit/ee35005d4d8b91c163efc343ad3033cb744c9eb1))
+* update default path handling in App initialization ([a445e7d](https://github.com/KevinDeBenedetti/devkit/commit/a445e7db2e1dd68d7471fd4bef64431aea8fc4ea))
+
 ## [0.1.2](https://github.com/KevinDeBenedetti/devkit/compare/v0.1.1...v0.1.2) (2025-11-11)
 
 
