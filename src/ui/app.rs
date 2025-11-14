@@ -16,12 +16,13 @@ pub struct App {
 
 impl App {
     pub fn new() -> Self {
-        Self::with_path(Self::current_directory())
+        Self::with_path(String::new())
     }
 
     pub fn with_path(target_path: String) -> Self {
+        let current_dir = Self::current_directory();
         let tree_lines = if target_path.is_empty() {
-            build_tree_lines(".", 3)
+            build_tree_lines(&current_dir, 3)
         } else {
             build_tree_lines(&target_path, 3)
         };
