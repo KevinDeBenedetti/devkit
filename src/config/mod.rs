@@ -8,7 +8,6 @@ pub struct StackConfig {
     pub name: String,
     pub description: String,
     pub files: Vec<FileTemplate>,
-    pub dependencies: Vec<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -17,13 +16,15 @@ pub struct FileTemplate {
     pub content: String,
 }
 
+pub const AVAILABLE_STACKS: [&str; 3] = ["vue", "nuxt", "fastapi"];
+
 pub fn get_available_stacks() -> Vec<String> {
-    vec!["vue".to_string(), "nuxt".to_string(), "fastapi".to_string()]
+    AVAILABLE_STACKS.iter().map(|s| s.to_string()).collect()
 }
 
-pub fn apply_stack_config(stack_name: &str, base_path: &str) -> Result<()> {
-    let config = get_stack_config(stack_name)?;
-    let base_path = PathBuf::from(base_path);
+pub fn apply_stack_config(stack: &str, target_path: &str) -> Result<()> {
+    let config = get_stack_config(stack)?;
+    let base_path = PathBuf::from(target_path);
 
     // Print current tree
     println!("\n📂 Target directory: {}", base_path.display());
@@ -118,7 +119,7 @@ fn get_stack_config(stack_name: &str) -> Result<StackConfig> {
             description: "Vue 3 application with TypeScript".to_string(),
             files: vec![
                 FileTemplate {
-                    path: "Makefile".to_string(),
+                    path: "vue.mk".to_string(),
                     content: include_str!("../templates/vue/vue.mk").to_string(),
                 },
                 FileTemplate {
@@ -130,18 +131,13 @@ fn get_stack_config(stack_name: &str) -> Result<StackConfig> {
                     content: include_str!("../templates/vue/.dockerignore").to_string(),
                 },
             ],
-            dependencies: vec![
-                "vue".to_string(),
-                "vite".to_string(),
-                "typescript".to_string(),
-            ],
         }),
         "nuxt" => Ok(StackConfig {
             name: "Nuxt".to_string(),
             description: "Nuxt 3 application with TypeScript".to_string(),
             files: vec![
                 FileTemplate {
-                    path: "Makefile".to_string(),
+                    path: "nuxt.mk".to_string(),
                     content: include_str!("../templates/nuxt/nuxt.mk").to_string(),
                 },
                 FileTemplate {
@@ -153,14 +149,13 @@ fn get_stack_config(stack_name: &str) -> Result<StackConfig> {
                     content: include_str!("../templates/nuxt/.dockerignore").to_string(),
                 },
             ],
-            dependencies: vec!["nuxt".to_string(), "@nuxt/devtools".to_string()],
         }),
         "fastapi" => Ok(StackConfig {
             name: "FastAPI".to_string(),
             description: "REST API with FastAPI and Python".to_string(),
             files: vec![
                 FileTemplate {
-                    path: "Makefile".to_string(),
+                    path: "fastapi.mk".to_string(),
                     content: include_str!("../templates/fastapi/fastapi.mk").to_string(),
                 },
                 FileTemplate {
@@ -171,11 +166,6 @@ fn get_stack_config(stack_name: &str) -> Result<StackConfig> {
                     path: ".dockerignore".to_string(),
                     content: include_str!("../templates/fastapi/.dockerignore").to_string(),
                 },
-            ],
-            dependencies: vec![
-                "fastapi".to_string(),
-                "uvicorn[standard]".to_string(),
-                "pydantic".to_string(),
             ],
         }),
         _ => Err(anyhow!("Stack '{}' not recognized", stack_name)),

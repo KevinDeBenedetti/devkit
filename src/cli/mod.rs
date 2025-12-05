@@ -8,20 +8,21 @@ pub struct Cli {
     pub command: Commands,
 }
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Debug)]
 pub enum Commands {
     /// Launch the interactive interface to configure the project
     Init {
-        /// Project path (optional, prompted interactively if absent)
-        #[arg(short, long)]
-        path: Option<String>,
+        #[arg(short, long, default_value = ".")]
+        path: String,
     },
 
     /// Directly configure a specific stack
     Config {
-        /// Name of the stack (vue, nuxt, fastapi)
-        stack: String,
-        /// Project path (optional, defaults to current directory)
+        /// One or more stacks to apply (repeatable: --stack rls --stack wasm)
+        #[arg(required = true)]
+        stacks: Vec<String>,
+
+        /// Optional target path for generated files (default = current dir)
         #[arg(short, long)]
         path: Option<String>,
     },

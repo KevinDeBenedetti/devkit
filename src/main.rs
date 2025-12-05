@@ -14,14 +14,23 @@ fn main() -> Result<()> {
             // Launch the TUI interface
             ui::run_interactive_setup(path)?;
         }
-        cli::Commands::Config { stack, path } => {
+        cli::Commands::Config { stacks, path } => {
             let target_path = path.unwrap_or_else(|| ".".to_string());
-            // Direct configuration without TUI
-            config::apply_stack_config(&stack, &target_path)?;
+
+            // Apply configuration for each stack
+            for stack in &stacks {
+                config::apply_stack_config(stack, &target_path)?;
+            }
+
+            // Generate Makefile with all stacks
+            config::generate_makefile(&stacks, &target_path)?;
+
             println!(
-                "✓ Configuration {} applied successfully in {}",
-                stack, target_path
+                "✓ Configuration for [{}] applied successfully in {}",
+                stacks.join(", "),
+                target_path
             );
+            println!("✓ Makefile generated with stack configurations");
         }
         cli::Commands::List => {
             // List available stacks
