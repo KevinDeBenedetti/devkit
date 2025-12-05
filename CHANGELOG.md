@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0](https://github.com/KevinDeBenedetti/devkit/compare/v0.2.0...v0.3.0) (2025-12-05)
+
+
+### Features
+
+* add Docker and Makefile templates for FastAPI, Nuxt, and Vue ([2ee82d8](https://github.com/KevinDeBenedetti/devkit/commit/2ee82d8f7a30301f1e26b4765606d5e1ad7dbe3e))
+
+
+### Bug Fixes
+
+* execute ratatui commands correctly ([1d6c9c5](https://github.com/KevinDeBenedetti/devkit/commit/1d6c9c5d8b3aada07b490d5462ec7593d2a706df))
+
 ## [0.2.0](https://github.com/KevinDeBenedetti/devkit/compare/v0.1.2...v0.2.0) (2025-11-14)
 
 
